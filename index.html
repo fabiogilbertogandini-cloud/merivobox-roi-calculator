@@ -543,11 +543,15 @@
     </div>
   </header>
 
-  <div class="banner" data-i18n="placeholderBanner">Illustrative estimate. Hardware uses distributor pricing; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.</div>
+  <div class="banner" data-i18n="placeholderBanner">Illustrative estimate. Hardware prices include the selected markup; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.</div>
 
   <details class="howto" id="howtoJob" open>
     <summary data-i18n="howSummaryJob">How to read this — Per job</summary>
     <div class="howbody" data-i18n="howBodyJob"></div>
+  </details>
+  <details class="howto hidden" id="howtoAnnual" open>
+    <summary data-i18n="howSummaryAnnual">How to read this — Annual</summary>
+    <div class="howbody" data-i18n="howBodyAnnual"></div>
   </details>
 
   <div class="grid">
@@ -704,14 +708,10 @@
 
       <div class="panel" id="costsPanel">
         <h2 data-i18n="panelCosts">Shop costs &amp; prices</h2>
-        <div class="field"><span class="sub" data-i18n="subCostsNote">Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices are distributor pricing before markup.</span></div>
+        <div class="field"><span class="sub" data-i18n="subCostsNote">Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices already include the selected markup.</span></div>
         <details class="assump">
           <summary data-i18n="detShop">Shop costs (wood drawers &amp; panels)</summary>
           <div id="shopFields"></div>
-        </details>
-        <details class="assump">
-          <summary data-i18n="detHw">Distributor hardware pricing (before markup)</summary>
-          <div id="hwFields"></div>
         </details>
       </div>
 
@@ -770,10 +770,6 @@
 
       <div class="panel" id="annualPanel">
         <h2 data-i18n="panelAnnual">Annualized ROI</h2>
-        <details class="howto" id="howtoAnnual" open>
-          <summary data-i18n="howSummaryAnnual">How to read this — Annual</summary>
-          <div class="howbody" data-i18n="howBodyAnnual"></div>
-        </details>
         <div class="annual-strip">
           <div class="stat"><div class="lbl" data-i18n="statWeeklyLabour">Weekly labour savings</div><div class="num" id="weeklyLabour">—</div></div>
           <div class="stat"><div class="lbl" data-i18n="statWeeklyMat">Weekly cost difference outside labour</div><div class="num" id="weeklyMat">—</div></div>
@@ -830,10 +826,12 @@ function setMode(m){
   btnEnhanced.classList.toggle('active', m==='enhanced');
   volumePanel.classList.toggle('hidden', m==='simple');
   annualPanel.classList.toggle('hidden', m==='simple');
+  $('howtoJob').classList.toggle('hidden', m!=='simple');
+  $('howtoAnnual').classList.toggle('hidden', m==='simple');
   calc();
 }
-btnSimple.addEventListener('click', ()=>setMode('simple'));
-btnEnhanced.addEventListener('click', ()=>setMode('enhanced'));
+btnSimple.addEventListener('click', ()=>{ setMode('simple'); window.scrollTo({top:0, behavior:'smooth'}); });
+btnEnhanced.addEventListener('click', ()=>{ setMode('enhanced'); $('volumePanel').scrollIntoView({behavior:'smooth', block:'start'}); });
 
 const i18n = {
   title:{en:'MERIVOBOX ROI Calculator', fr:'Calculateur de rentabilité MERIVOBOX'},
@@ -847,7 +845,7 @@ const i18n = {
   lblLabourRate:{en:'Labour rate', fr:'Taux horaire'},
   unitLabourRate:{en:'$ / hr', fr:'$ / h'},
   lblMerivoTime:{en:'MERIVOBOX assembly time', fr:'Temps d\u2019assemblage MERIVOBOX'},
-  placeholderBanner:{en:'Illustrative estimate. Hardware uses distributor pricing; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.', fr:'Estimation illustrative. La quincaillerie utilise les prix du distributeur; les champs à contour orange pointillé contiennent des coûts d’atelier provisoires — remplacez-les par les chiffres réels de l’atelier avant de partager les résultats.'},
+  placeholderBanner:{en:'Illustrative estimate. Hardware prices include the selected markup; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.', fr:'Estimation illustrative. Les prix de la quincaillerie incluent la majoration choisie; les champs à contour orange pointillé contiennent des coûts d’atelier provisoires — remplacez-les par les chiffres réels de l’atelier avant de partager les résultats.'},
   len400:{en:'400 mm (16")', fr:'400 mm (16 po)'},
   len450:{en:'450 mm (18")', fr:'450 mm (18 po)'},
   asmWoodRunners:{en:'Wood-drawer runners — TANDEM / MOVENTO ($ / pair, by length mm)', fr:'Coulisses tiroirs en bois — TANDEM / MOVENTO ($ / paire, selon la longueur mm)'},
@@ -884,9 +882,8 @@ const i18n = {
   optPly:{en:'Plywood (pre-finished birch)', fr:'Contreplaqué (bouleau préfini)'},
   specNote:{en:'Height and length also set the wood drawers’ height and depth in the comparison. Colour is visual only — it just selects the matching panel.', fr:'La hauteur et la longueur déterminent aussi la hauteur et la profondeur des tiroirs en bois dans la comparaison. La couleur est visuelle seulement — elle sert à choisir le panneau assorti.'},
   panelCosts:{en:'Shop costs &amp; prices', fr:'Coûts de l’atelier et prix'},
-  subCostsNote:{en:'Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices are distributor pricing before markup.', fr:'Les coûts d’atelier sont provisoires — remplacez-les par les chiffres de l’atelier. Les prix de la quincaillerie sont ceux du distributeur, avant majoration.'},
+  subCostsNote:{en:'Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices already include the selected markup.', fr:'Les coûts d’atelier sont provisoires — remplacez-les par les chiffres de l’atelier. Les prix de la quincaillerie incluent déjà la majoration choisie.'},
   detShop:{en:'Shop costs (wood drawers &amp; panels)', fr:'Coûts de l’atelier (tiroirs en bois et panneaux)'},
-  detHw:{en:'Distributor hardware pricing (before markup)', fr:'Prix de la quincaillerie — distributeur (avant majoration)'},
   asmPanels:{en:'Panel / wood price', fr:'Prix des panneaux / du bois'},
   asmCutting:{en:'Cutting', fr:'Coupe'},
   asmTaping:{en:'Edge taping', fr:'Placage de chant'},
@@ -1055,13 +1052,9 @@ const COLS = ['mel','ply','dv','mvx'];
 const COST_ROWS = ['material','cutting','taping','finishing','glue','labour','runners','locking','sides','fixings'];
 const ROWDEFS = [['time','rTime'],['material','rMaterial'],['cutting','rCutting'],['taping','rTaping'],['finishing','rFinishing'],['glue','rGlue'],['labour','rLabour'],['runners','rRunners'],['locking','rLocking'],['sides','rSides'],['fixings','rFixings'],['total','rTotal'],['save','rSave']];
 
-/* ---- HARDWARE PRICING (distributor pricing, CAD, before markup) ----
-   Values are defaults and remain editable in the page. */
-const HW_DATA = {"sides": {"N": {"400": 19.3732, "450": 19.6026, "500": 19.8172, "550": 21.6154}, "M": {"400": 17.649, "450": 17.8488, "500": 18.0634, "550": 19.6914}, "K": {"400": 22.9104, "450": 23.1102, "500": 23.31, "550": 24.9306}, "E": {"400": 31.7016, "450": 32.1012, "500": 32.5082, "550": 34.9502}}, "runner": {"N": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}, "M": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}, "K": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}, "E": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}}, "fix": {"N": {"400": 1.9388, "450": 1.9388, "500": 1.9388, "550": 1.9388}, "M": {"400": 1.85, "450": 1.85, "500": 1.85, "550": 1.85}, "K": {"400": 2.0572, "450": 2.0572, "500": 2.0572, "550": 2.0572}, "E": {"400": 3.6482, "450": 3.6482, "500": 3.6482, "550": 3.6482}}, "rn": {"TANDEM": {"400": 19.3436, "450": 19.5878, "500": 19.8468, "550": 20.7792}, "MOVENTO": {"400": 22.7846, "450": 23.0288, "500": 23.3026, "550": 24.6716}}, "lock": {"MOVENTO": 2.59, "TANDEM": 1.4356}};
+/* ---- hardware prices by markup option (CAD per drawer, markup already included) ---- */
+const HWM = {"0.15":{"sides":{"N":{"400":22.2792,"450":22.543,"500":22.7898,"550":24.8577},"M":{"400":20.2964,"450":20.5261,"500":20.7729,"550":22.6451},"K":{"400":26.347,"450":26.5767,"500":26.8065,"550":28.6702},"E":{"400":36.4568,"450":36.9164,"500":37.3844,"550":40.1927}},"runner":{"N":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706},"M":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706},"K":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706},"E":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706}},"fix":{"N":{"400":2.2296,"450":2.2296,"500":2.2296,"550":2.2296},"M":{"400":2.1275,"450":2.1275,"500":2.1275,"550":2.1275},"K":{"400":2.3658,"450":2.3658,"500":2.3658,"550":2.3658},"E":{"400":4.1954,"450":4.1954,"500":4.1954,"550":4.1954}},"rn":{"TANDEM":{"400":22.2451,"450":22.526,"500":22.8238,"550":23.8961},"MOVENTO":{"400":26.2023,"450":26.4831,"500":26.798,"550":28.3723}},"lock":{"MOVENTO":2.9785,"TANDEM":1.6509}},"0.25":{"sides":{"N":{"400":24.2165,"450":24.5032,"500":24.7715,"550":27.0192},"M":{"400":22.0613,"450":22.311,"500":22.5793,"550":24.6143},"K":{"400":28.638,"450":28.8877,"500":29.1375,"550":31.1632},"E":{"400":39.627,"450":40.1265,"500":40.6352,"550":43.6878}},"runner":{"N":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463},"M":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463},"K":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463},"E":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463}},"fix":{"N":{"400":2.4235,"450":2.4235,"500":2.4235,"550":2.4235},"M":{"400":2.3125,"450":2.3125,"500":2.3125,"550":2.3125},"K":{"400":2.5715,"450":2.5715,"500":2.5715,"550":2.5715},"E":{"400":4.5602,"450":4.5602,"500":4.5602,"550":4.5602}},"rn":{"TANDEM":{"400":24.1795,"450":24.4848,"500":24.8085,"550":25.974},"MOVENTO":{"400":28.4808,"450":28.786,"500":29.1283,"550":30.8395}},"lock":{"MOVENTO":3.2375,"TANDEM":1.7945}},"0.35":{"sides":{"N":{"400":26.1538,"450":26.4635,"500":26.7532,"550":29.1808},"M":{"400":23.8262,"450":24.0959,"500":24.3856,"550":26.5834},"K":{"400":30.929,"450":31.1988,"500":31.4685,"550":33.6563},"E":{"400":42.7972,"450":43.3366,"500":43.8861,"550":47.1828}},"runner":{"N":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022},"M":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022},"K":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022},"E":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022}},"fix":{"N":{"400":2.6174,"450":2.6174,"500":2.6174,"550":2.6174},"M":{"400":2.4975,"450":2.4975,"500":2.4975,"550":2.4975},"K":{"400":2.7772,"450":2.7772,"500":2.7772,"550":2.7772},"E":{"400":4.9251,"450":4.9251,"500":4.9251,"550":4.9251}},"rn":{"TANDEM":{"400":26.1139,"450":26.4435,"500":26.7932,"550":28.0519},"MOVENTO":{"400":30.7592,"450":31.0889,"500":31.4585,"550":33.3067}},"lock":{"MOVENTO":3.4965,"TANDEM":1.9381}}};
 const r2 = x => Math.round(x*100)/100;
-const LENGTHS = ['400','450','500','550'];
-const LOCK_KINDS = ['TANDEM','MOVENTO'];
-const HW_KINDS = [['sides','asmSides'],['runner','asmMvxRunner'],['fix','asmFixings']];
 
 const SHOP = [
   { head:'asmPanels', rows:[
@@ -1123,26 +1116,6 @@ function buildCosts(){
   });
   $('shopFields').innerHTML = a;
 
-  let b = '';
-  const hdrRow = '<div></div>' + LENGTHS.map(l=>`<div class="hdr">${l}</div>`).join('');
-  HW_KINDS.forEach(([kind, head])=>{
-    b += `<div class="asm-h" data-i18n="${head}">${i18n[head].en}</div><div class="hwgrid">${hdrRow}`;
-    Object.keys(HEIGHT_MM).forEach(h=>{
-      b += `<div class="lbl">${h}</div>` + LENGTHS.map(l=>
-        `<div class="input-row"><input type="number" id="hw_${kind}_${h}_${l}" value="${HW_DATA[kind][h][l]}" min="0" step="any"></div>`).join('');
-    });
-    b += '</div>';
-  });
-  b += `<div class="asm-h" data-i18n="asmWoodRunners">${i18n.asmWoodRunners.en}</div><div class="hwgrid">${hdrRow}`;
-  LOCK_KINDS.forEach(k=>{
-    b += `<div class="lbl">${k.slice(0,3)}</div>` + LENGTHS.map(l=>
-      `<div class="input-row"><input type="number" id="rn_${k}_${l}" value="${HW_DATA.rn[k][l]}" min="0" step="any"></div>`).join('');
-  });
-  b += '</div>';
-  LOCK_KINDS.forEach(k=>{
-    b += fieldHTML('lock_'+k, k === 'TANDEM' ? 'lblLockTandem' : 'lblLockMovento', 'unitPerDrw', HW_DATA.lock[k], true);
-  });
-  $('hwFields').innerHTML = b;
 }
 
 function buildTable(){
@@ -1222,7 +1195,7 @@ function calc(){
   const runner = $('runnerType').value;
   const dvPrelim = $('dvMode').value === 'prelim';
   const dvF = num('dvFactor');
-  const mult = 1 + markup;
+  const hwTab = HWM[markup.toFixed(2)];
 
   const W = widthIn * 25.4, D = parseFloat(spec.length), H = HEIGHT_MM[spec.height];
   const areaWood = (2*D*H + 2*W*H + W*D) / SQMM_PER_SQFT;
@@ -1231,8 +1204,8 @@ function calc(){
   const tapeMvx  = W / MM_PER_FT;
   const cutRate  = method === 'cnc' ? num('cutCNC')  : num('cutManual');
   const tapeRate = method === 'cnc' ? num('tapeCNC') : num('tapeManual');
-  const hwRun  = num(`rn_${runner}_${spec.length}`) * mult;
-  const hwLock = num('lock_' + runner) * mult;
+  const hwRun  = hwTab.rn[runner][spec.length];
+  const hwLock = hwTab.lock[runner];
 
   const wood = (priceId, assemblyId, taped) => ({
     min: num(assemblyId),
@@ -1251,7 +1224,7 @@ function calc(){
         finishing: null, glue: mel.glue*dvF, runners: hwRun, locking: hwLock, sides: null, fixings: null }
     : wood('price_' + $('dvSpecies').value, 'dvAssembly', false);
 
-  const hw = kind => num(`hw_${kind}_${spec.height}_${spec.length}`) * mult;
+  const hw = kind => hwTab[kind][spec.height][spec.length];
   const mvx = {
     min: num('merivoTime'),
     material: areaMvx * num('price_' + $('mvxPanel').value),
@@ -1354,15 +1327,14 @@ function calc(){
   }
 }
 
-/* ---- assembly equipment: one-time cost (distributor pricing + 12% markup) and assembly time ---- */
-const EQUIP_MARKUP = 0.12;
+/* ---- assembly equipment: one-time cost (markup included) and assembly time ---- */
 const EQUIP = {
-  boxfixem:   { price:178.35,               min:2,   img:'Images/boxfix-em.jpg.jpg' },
-  boxfixplus: { price:5840 + 690 + 1620,    min:0.5, img:'Images/boxfix-plus.jpg.jpg' }   // device + air nailer + nail kit
+  boxfixem:   { price:199.75,               min:2,   img:'Images/boxfix-em.jpg.jpg' },
+  boxfixplus: { price:9128.00,              min:0.5, img:'Images/boxfix-plus.jpg.jpg' }
 };
 function applyEquip(){
   const e = EQUIP[$('equipType').value];
-  $('equipCost').value = $('equipOwned').checked ? '0.00' : r2(e.price * (1 + EQUIP_MARKUP)).toFixed(2);
+  $('equipCost').value = $('equipOwned').checked ? '0.00' : e.price.toFixed(2);
   $('merivoTime').value = e.min;
   const im = $('equipImg');
   im.src = e.img; im.style.display = 'block';
