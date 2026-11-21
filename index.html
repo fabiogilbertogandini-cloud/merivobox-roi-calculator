@@ -317,6 +317,58 @@
 
   .hidden{display:none !important;}
 
+  /* ---- v3: placeholders, banner, pills, assumptions ---- */
+  .banner{
+    background:#FFF6EE;
+    border:1.5px dashed var(--rust);
+    border-radius:6px;
+    padding:10px 14px;
+    font-size:12.5px;
+    line-height:1.5;
+    color:var(--ink);
+    margin-bottom:20px;
+  }
+  .input-row.tbd{border-style:dashed;border-color:var(--rust);}
+  .input-row.tbd:focus-within{border-style:solid;}
+
+  .seg{display:flex;gap:8px;}
+  .seg button{
+    flex:1;
+    border:1.5px solid var(--line);
+    background:#FCFBF8;
+    color:var(--ink);
+    border-radius:5px;
+    padding:9px 0;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .seg button.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  details.assump{margin-top:18px;border-top:1px solid var(--line);padding-top:12px;}
+  details.assump summary{
+    cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--steel);
+    font-weight:600;
+  }
+  .asm-h{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin:18px 0 8px;
+  }
+  .hwgrid{display:grid;grid-template-columns:34px 1fr 1fr;gap:6px;align-items:center;}
+  .rngrid{display:grid;grid-template-columns:92px 1fr;gap:6px;align-items:center;}
+  .hwgrid .hdr,.hwgrid .lbl,.rngrid .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);font-weight:600;}
+  .hwgrid .input-row input,.rngrid .input-row input{padding:7px 8px;font-size:13px;}
+
   /* spec selector */
   select.spec-select{
     border:1.5px solid var(--line);
@@ -417,6 +469,44 @@
     border-radius:20px;
     font-size:10.5px;
   }
+
+  /* ---- v4: comparison table, print ---- */
+  .grid > div{min-width:0;}
+  .cmp-wrap{overflow-x:auto;margin-bottom:12px;}
+  table.cmp{width:100%;border-collapse:collapse;font-size:12.5px;min-width:540px;}
+  .cmp th,.cmp td{padding:7px 8px;border-bottom:1px dashed var(--line);text-align:right;white-space:nowrap;}
+  .cmp th:first-child,.cmp td:first-child{text-align:left;white-space:normal;position:sticky;left:0;background:#fff;min-width:118px;}
+  .cmp thead th{border-bottom:2px solid var(--ink);vertical-align:bottom;}
+  .cmp .ct{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+  .cmp .cs{font-weight:400;color:var(--muted);font-size:10.5px;white-space:normal;margin-top:2px;}
+  .cmp td.val{font-family:'IBM Plex Mono',monospace;font-weight:600;}
+  .cmp th.cur,.cmp td.cur{background:#FFF3EC;}
+  .cmp th.mvx,.cmp td.mvx{background:var(--green-dim);}
+  .cmp tr.total td{font-weight:800;border-top:2px solid var(--ink);font-size:14px;}
+  .cmp tr.save td{color:var(--green);}
+  .cmp tr.save td:first-child{color:var(--ink);}
+  .table-note{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:18px;}
+  .print-btn{
+    margin-top:14px;
+    border:1.5px solid var(--ink);
+    background:var(--panel);
+    color:var(--ink);
+    border-radius:5px;
+    padding:9px 14px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  #printSummary{display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;margin-bottom:12px;}
+  @media print{
+    body{background:#fff;}
+    .wrap{padding:0;max-width:none;}
+    .toggle-group,.print-btn,.grid > div:first-child{display:none !important;}
+    .grid{grid-template-columns:1fr;}
+    #printSummary{display:block;}
+    .panel{border:none;padding:0;}
+  }
 </style>
 </head>
 <body>
@@ -439,6 +529,8 @@
     </div>
   </header>
 
+  <div class="banner" data-i18n="placeholderBanner">Illustrative estimate. Fields with an orange dashed outline hold placeholder values pending real quotes — replace them with actual numbers before sharing results.</div>
+
   <div class="grid">
 
     <!-- INPUTS -->
@@ -450,25 +542,69 @@
           <div class="input-row"><input type="number" id="drawers" value="7" min="1" step="1"><span class="unit" data-i18n="unitDrawers">drawers</span></div>
         </div>
         <div class="field">
-          <label data-i18n="lblTradRate">Traditional output</label>
-          <div class="input-row"><input type="number" id="tradRate" value="1" min="0.1" step="0.1"><span class="unit" data-i18n="unitTradRate">drw / hr</span></div>
-        </div>
-        <div class="field">
           <label data-i18n="lblLabourRate">Labour rate</label>
           <div class="input-row"><input type="number" id="labourRate" value="100" min="0" step="1"><span class="unit" data-i18n="unitLabourRate">$ / hr</span></div>
         </div>
         <div class="field">
-          <label data-i18n="lblMatTrad">Material cost — traditional</label>
-          <div class="input-row"><input type="number" id="matTrad" value="40" min="0" step="1"><span class="unit" data-i18n="unitMat">$ / drw</span></div>
+          <label data-i18n="lblCurType">Shop's current drawer</label>
+          <select class="spec-select" id="curType">
+            <option value="melamine" selected data-i18n="optMelamine">Melamine</option>
+            <option value="plywood" data-i18n="optPlywood">Plywood</option>
+            <option value="dovetail" data-i18n="optDovetail">Dovetail</option>
+          </select>
         </div>
         <div class="field">
-          <label><span data-i18n="lblMatMerivo">Material cost — MERIVOBOX</span> <span class="sub" data-i18n="subMatMerivoBase">base, at M height / 500mm</span></label>
-          <div class="input-row"><input type="number" id="matMerivo" value="40" min="0" step="1"><span class="unit" data-i18n="unitMat2">$ / drw</span></div>
-          <div class="sub" style="margin-top:6px;" data-i18n-skip><span data-i18n="effectiveCostLabel">Effective cost for selected spec:</span> <strong id="effectiveCostVal">$40 / drw</strong></div>
+          <label><span data-i18n="lblMethod">Production method</span> <span class="sub" data-i18n="subMethod">cutting &amp; taping, all drawer types</span></label>
+          <select class="spec-select" id="method">
+            <option value="cnc" selected data-i18n="optCNC">CNC route</option>
+            <option value="manual" data-i18n="optManual">Manual route (table saw)</option>
+          </select>
         </div>
         <div class="field">
-          <label data-i18n="lblMerivoTime">MERIVOBOX assembly time</label>
-          <div class="input-row"><input type="number" id="merivoTime" value="3" min="0.1" step="0.1"><span class="unit" data-i18n="unitMerivoTime">min / drw</span></div>
+          <label><span data-i18n="lblMarkup">Hardware markup</span> <span class="sub" data-i18n="subMarkup">hardware only — not material or labour</span></label>
+          <div class="seg" id="markupSeg">
+            <button type="button" data-markup="0.15">+15%</button>
+            <button type="button" data-markup="0.25" class="active">+25%</button>
+            <button type="button" data-markup="0.35">+35%</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2 data-i18n="panelWood">Traditional wood drawers</h2>
+        <div class="field">
+          <label data-i18n="lblWidth">Drawer width</label>
+          <select class="spec-select" id="woodWidth">
+            <option value="24" selected>24"</option>
+            <option value="18">18"</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-i18n="lblRunner">Runner type</label>
+          <select class="spec-select" id="runnerType">
+            <option value="TANDEM" selected>TANDEM</option>
+            <option value="MOVENTO">MOVENTO</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-i18n="lblMelColour">Melamine colour</label>
+          <select class="spec-select" id="melColour">
+            <option value="melOrion" data-i18n="colOrionGrey">Orion Grey</option>
+            <option value="melFolk" data-i18n="nameFolk">Folkstone Grey</option>
+            <option value="melWhite" selected data-i18n="nameWhite">White</option>
+            <option value="melMaple" data-i18n="nameMaple">Maple</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-i18n="lblDvSpecies">Dovetail species</label>
+          <select class="spec-select" id="dvSpecies">
+            <option value="dvWalnut" selected data-i18n="spWalnut">Black walnut</option>
+            <option value="dvMaple" data-i18n="nameMaple">Maple</option>
+            <option value="dvBaltic" data-i18n="spBaltic">Baltic birch</option>
+          </select>
+        </div>
+        <div class="field">
+          <span class="sub" data-i18n="plyNote">Plywood = pre-finished birch.</span>
         </div>
       </div>
 
@@ -486,8 +622,8 @@
         <div class="field">
           <label data-i18n="lblLength">Nominal length</label>
           <select class="spec-select" id="specLength">
-            <option value="500" selected data-i18n-option="len500">500 mm (20")</option>
-            <option value="550" data-i18n-option="len550">550 mm (22")</option>
+            <option value="500" selected data-i18n="len500">500 mm (20")</option>
+            <option value="550" data-i18n="len550">550 mm (22")</option>
           </select>
         </div>
         <div class="field">
@@ -507,6 +643,20 @@
             </div>
           </div>
         </div>
+        <div class="field">
+          <label><span data-i18n="lblPanel">Bottom &amp; back panel</span> <span class="sub" data-i18n="subPanel">auto-matched to colour</span></label>
+          <select class="spec-select" id="mvxPanel">
+            <option value="melOrion" data-i18n="optMelOrion">Melamine Orion Grey · 16 mm</option>
+            <option value="melFolk" data-i18n="optMelFolk">Melamine Folkstone Grey · 16 mm</option>
+            <option value="melWhite" selected data-i18n="optMelWhite">Melamine White · 16 mm</option>
+            <option value="melMaple" data-i18n="optMelMaple">Melamine Maple · 16 mm</option>
+            <option value="ply" data-i18n="optPly">Plywood (pre-finished birch)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label data-i18n="lblMerivoTime">MERIVOBOX assembly time</label>
+          <div class="input-row"><input type="number" id="merivoTime" value="2" min="0.1" step="0.1"><span class="unit" data-i18n="unitMerivoTime">min / drw</span></div>
+        </div>
 
         <div class="preview-box">
           <div class="preview-img-wrap" id="previewImgWrap">
@@ -522,8 +672,21 @@
           </div>
         </div>
         <div class="field" style="margin-top:10px;">
-          <span class="sub" data-i18n="specNote">Height &amp; length affect material cost below (pro-rated). Colour is visual only — no cost impact.</span>
+          <span class="sub" data-i18n="specNote">Height and length also set the wood drawers' height and depth in the comparison. Colour is visual only — it just selects the matching panel.</span>
         </div>
+      </div>
+
+      <div class="panel" id="costsPanel">
+        <h2 data-i18n="panelCosts">Shop costs &amp; prices</h2>
+        <div class="field"><span class="sub" data-i18n="subCostsNote">Every value in these sections is a placeholder. Overwrite with the shop's own numbers.</span></div>
+        <details class="assump">
+          <summary data-i18n="detShop">Shop costs (wood drawers &amp; panels)</summary>
+          <div id="shopFields"></div>
+        </details>
+        <details class="assump">
+          <summary data-i18n="detHw">Blum hardware prices (MERIVOBOX, 40 kg)</summary>
+          <div id="hwFields"></div>
+        </details>
       </div>
 
       <div class="panel" id="volumePanel">
@@ -547,30 +710,17 @@
     <div>
       <div class="panel">
         <h2 data-i18n="panelPerJobComparison">Per-job comparison</h2>
+        <div id="printSummary"></div>
 
-        <div class="compare">
-          <div class="method-card trad">
-            <div class="method-label" data-i18n="methodTrad">Traditional</div>
-            <div class="method-row"><span data-i18n="rowTime">Time / job</span><span class="val" id="tTime">—</span></div>
-            <div class="method-row"><span data-i18n="rowLabour">Labour</span><span class="val" id="tLabour">—</span></div>
-            <div class="method-row"><span data-i18n="rowMaterial">Material</span><span class="val" id="tMat">—</span></div>
-            <div class="method-row"><span data-i18n="rowTotal">Total</span><span class="val" id="tTotal">—</span></div>
-          </div>
-          <div class="method-card merivo">
-            <div class="method-label" data-i18n="methodMerivo">MERIVOBOX</div>
-            <div class="method-row"><span data-i18n="rowTime2">Time / job</span><span class="val" id="mTime">—</span></div>
-            <div class="method-row"><span data-i18n="rowLabour2">Labour</span><span class="val" id="mLabour">—</span></div>
-            <div class="method-row"><span data-i18n="rowMaterial2">Material</span><span class="val" id="mMat">—</span></div>
-            <div class="method-row"><span data-i18n="rowTotal2">Total</span><span class="val" id="mTotal">—</span></div>
-          </div>
-        </div>
+        <div class="cmp-wrap"><table class="cmp" id="cmpTable"></table></div>
+        <div class="table-note" data-i18n="tableNote">Hardware lines include the selected markup. "—" = not applicable.</div>
 
         <div class="ruler">
-          <div class="ruler-label"><span data-i18n="rulerTimeLabel">Time per job</span><span id="rulerTradLabel">—</span></div>
+          <div class="ruler-label"><span><span data-i18n="rulerTimeLabel">Time per job</span> · <span id="rulerTypeName"></span></span><span id="rulerTradLabel">—</span></div>
           <div class="ruler-track trad"><div class="ruler-fill"></div></div>
         </div>
         <div class="ruler">
-          <div class="ruler-label"><span></span><span id="rulerMerivoLabel">—</span></div>
+          <div class="ruler-label"><span>MERIVOBOX</span><span id="rulerMerivoLabel">—</span></div>
           <div class="ruler-track"><div class="ruler-fill merivo" id="rulerMerivoFill"></div></div>
         </div>
 
@@ -578,6 +728,7 @@
           <div class="num" id="savedNum">—<span data-i18n="savedLabel">saved / job</span></div>
           <div class="text" id="takeawayText" data-i18n="takeawayPlaceholder">Enter your numbers to see the comparison.</div>
         </div>
+        <button type="button" class="print-btn" id="btnPrint" data-i18n="btnPrint">Print / save PDF</button>
       </div>
 
       <div class="panel" id="annualPanel">
@@ -623,7 +774,7 @@
 <script>
 const $ = id => document.getElementById(id);
 const localeFor = () => lang === 'fr' ? 'fr-CA' : 'en-US';
-const fmt$ = n => isFinite(n) ? (lang==='fr' ? n.toLocaleString('fr-CA',{maximumFractionDigits:0}) + ' $' : '$' + n.toLocaleString('en-US',{maximumFractionDigits:0})) : '—';
+const fmt$ = n => { if(!isFinite(n)) return '—'; const s = n < 0 ? '-' : ''; const a = Math.abs(n); return lang==='fr' ? s + a.toLocaleString('fr-CA',{maximumFractionDigits:0}) + ' $' : s + '$' + a.toLocaleString('en-US',{maximumFractionDigits:0}); };
 const fmtH = n => isFinite(n) ? n.toLocaleString(localeFor(),{maximumFractionDigits:2}) + (lang==='fr' ? ' h' : ' hr') : '—';
 const fmtPct = n => isFinite(n) ? (n*100).toLocaleString(localeFor(),{maximumFractionDigits:0}) + '%' : '—';
 
@@ -652,15 +803,95 @@ const i18n = {
   lblDrawers:{en:'Drawers per job', fr:'Tiroirs par projet'},
   subDrawers:{en:'e.g. one kitchen', fr:'p. ex. une cuisine'},
   unitDrawers:{en:'drawers', fr:'tiroirs'},
-  lblTradRate:{en:'Traditional output', fr:'Rendement traditionnel'},
-  unitTradRate:{en:'drw / hr', fr:'tir. / h'},
   lblLabourRate:{en:'Labour rate', fr:'Taux horaire'},
   unitLabourRate:{en:'$ / hr', fr:'$ / h'},
-  lblMatTrad:{en:'Material cost — traditional', fr:'Coût des matériaux — traditionnel'},
-  lblMatMerivo:{en:'Material cost — MERIVOBOX', fr:'Coût des matériaux — MERIVOBOX'},
-  unitMat:{en:'$ / drw', fr:'$ / tir.'},
-  unitMat2:{en:'$ / drw', fr:'$ / tir.'},
   lblMerivoTime:{en:'MERIVOBOX assembly time', fr:'Temps d\u2019assemblage MERIVOBOX'},
+  placeholderBanner:{en:'Illustrative estimate. Fields with an orange dashed outline hold placeholder values pending real quotes — replace them with actual numbers before sharing results.', fr:'Estimation illustrative. Les champs à contour orange pointillé contiennent des valeurs provisoires en attente de vraies soumissions — remplacez-les par des chiffres réels avant de partager les résultats.'},
+  lblCurType:{en:'Shop’s current drawer', fr:'Tiroir actuel de l’atelier'},
+  lblMethod:{en:'Production method', fr:'Méthode de production'},
+  subMethod:{en:'cutting &amp; taping, all drawer types', fr:'coupe et placage, tous les types de tiroirs'},
+  optCNC:{en:'CNC route', fr:'Procédé CNC'},
+  optManual:{en:'Manual route (table saw)', fr:'Procédé manuel (scie à table)'},
+  lblMarkup:{en:'Hardware markup', fr:'Majoration de la quincaillerie'},
+  subMarkup:{en:'hardware only — not material or labour', fr:'quincaillerie seulement — pas les matériaux ni la main-d’œuvre'},
+  panelWood:{en:'Traditional wood drawers', fr:'Tiroirs en bois traditionnels'},
+  lblWidth:{en:'Drawer width', fr:'Largeur du tiroir'},
+  lblRunner:{en:'Runner type', fr:'Type de coulisse'},
+  lblMelColour:{en:'Melamine colour', fr:'Couleur de la mélamine'},
+  lblDvSpecies:{en:'Dovetail species', fr:'Essence — queue d’aronde'},
+  optMelamine:{en:'Melamine', fr:'Mélamine'},
+  optPlywood:{en:'Plywood', fr:'Contreplaqué'},
+  optDovetail:{en:'Dovetail', fr:'Queue d’aronde'},
+  plyNote:{en:'Plywood = pre-finished birch.', fr:'Contreplaqué = bouleau préfini.'},
+  nameFolk:{en:'Folkstone Grey', fr:'Gris Folkstone'},
+  nameWhite:{en:'White', fr:'Blanc'},
+  nameMaple:{en:'Maple', fr:'Érable'},
+  nameBirch:{en:'Pre-finished birch', fr:'Bouleau préfini'},
+  spWalnut:{en:'Black walnut', fr:'Noyer noir'},
+  spBaltic:{en:'Baltic birch', fr:'Bouleau de la Baltique'},
+  lblPanel:{en:'Bottom &amp; back panel', fr:'Panneau du fond et de l’arrière'},
+  subPanel:{en:'auto-matched to colour', fr:'jumelé à la couleur'},
+  optMelOrion:{en:'Melamine Orion Grey · 16 mm', fr:'Mélamine gris Orion · 16 mm'},
+  optMelFolk:{en:'Melamine Folkstone Grey · 16 mm', fr:'Mélamine gris Folkstone · 16 mm'},
+  optMelWhite:{en:'Melamine White · 16 mm', fr:'Mélamine blanc · 16 mm'},
+  optMelMaple:{en:'Melamine Maple · 16 mm', fr:'Mélamine érable · 16 mm'},
+  optPly:{en:'Plywood (pre-finished birch)', fr:'Contreplaqué (bouleau préfini)'},
+  specNote:{en:'Height and length also set the wood drawers’ height and depth in the comparison. Colour is visual only — it just selects the matching panel.', fr:'La hauteur et la longueur déterminent aussi la hauteur et la profondeur des tiroirs en bois dans la comparaison. La couleur est visuelle seulement — elle sert à choisir le panneau assorti.'},
+  panelCosts:{en:'Shop costs &amp; prices', fr:'Coûts de l’atelier et prix'},
+  subCostsNote:{en:'Every value in these sections is a placeholder. Overwrite with the shop’s own numbers.', fr:'Chaque valeur de ces sections est provisoire. Remplacez-la par les chiffres de l’atelier.'},
+  detShop:{en:'Shop costs (wood drawers &amp; panels)', fr:'Coûts de l’atelier (tiroirs en bois et panneaux)'},
+  detHw:{en:'Blum hardware prices (MERIVOBOX, 40 kg)', fr:'Prix de la quincaillerie Blum (MERIVOBOX, 40 kg)'},
+  asmPanels:{en:'Panel / wood price', fr:'Prix des panneaux / du bois'},
+  asmCutting:{en:'Cutting', fr:'Coupe'},
+  asmTaping:{en:'Edge taping', fr:'Placage de chant'},
+  asmOther:{en:'Glue, finishing, assembly time', fr:'Colle, finition, temps d’assemblage'},
+  asmRunners:{en:'Runners &amp; locking devices (wood drawers)', fr:'Coulisses et dispositifs de verrouillage (tiroirs en bois)'},
+  asmDvPricing:{en:'Dovetail pricing', fr:'Prix — queue d’aronde'},
+  asmSides:{en:'MERIVOBOX steel sides ($ / drawer)', fr:'Côtés en acier MERIVOBOX ($ / tiroir)'},
+  asmMvxRunner:{en:'MERIVOBOX runner ($ / drawer)', fr:'Coulisse MERIVOBOX ($ / tiroir)'},
+  asmFixings:{en:'MERIVOBOX front &amp; back fixing ($ / drawer)', fr:'Fixations avant et arrière MERIVOBOX ($ / tiroir)'},
+  optPlyBirch:{en:'Plywood — pre-finished birch', fr:'Contreplaqué — bouleau préfini'},
+  optDvWalnut:{en:'Dovetail — black walnut', fr:'Queue d’aronde — noyer noir'},
+  optDvMaple:{en:'Dovetail — maple', fr:'Queue d’aronde — érable'},
+  optDvBaltic:{en:'Dovetail — baltic birch', fr:'Queue d’aronde — bouleau de la Baltique'},
+  lblCutCNC:{en:'Cutting — CNC route', fr:'Coupe — procédé CNC'},
+  lblCutManual:{en:'Cutting — manual route', fr:'Coupe — procédé manuel'},
+  lblTapeCNC:{en:'Edge taping — CNC route', fr:'Placage de chant — procédé CNC'},
+  lblTapeManual:{en:'Edge taping — manual route', fr:'Placage de chant — procédé manuel'},
+  unitPerPiece:{en:'$ / piece', fr:'$ / pièce'},
+  unitPerFt:{en:'$ / ft', fr:'$ / pi'},
+  unitPerDrw:{en:'$ / drw', fr:'$ / tir.'},
+  unitSqft:{en:'$ / sq ft', fr:'$ / pi²'},
+  unitMinDrw:{en:'min / drw', fr:'min / tir.'},
+  lblGlueWood:{en:'Glue — wood drawer', fr:'Colle — tiroir en bois'},
+  lblGlueMvx:{en:'Glue — MERIVOBOX', fr:'Colle — MERIVOBOX'},
+  lblFinishDv:{en:'Sanding &amp; finishing — dovetail', fr:'Ponçage et finition — queue d’aronde'},
+  lblWoodAssembly:{en:'Assembly — melamine / plywood', fr:'Assemblage — mélamine / contreplaqué'},
+  lblDvAssembly:{en:'Assembly — dovetail (itemized)', fr:'Assemblage — queue d’aronde (détaillé)'},
+  lblRnTandem:{en:'Runner — TANDEM', fr:'Coulisse — TANDEM'},
+  lblRnMovento:{en:'Runner — MOVENTO', fr:'Coulisse — MOVENTO'},
+  lblLock:{en:'Locking devices', fr:'Dispositifs de verrouillage'},
+  lblDvMode:{en:'Dovetail pricing method', fr:'Méthode de prix — queue d’aronde'},
+  optDvPrelim:{en:'Preliminary (factor × melamine box)', fr:'Préliminaire (facteur × boîte en mélamine)'},
+  optDvItemized:{en:'Itemized (by species)', fr:'Détaillé (par essence)'},
+  lblDovetail:{en:'Dovetail factor (× melamine box)', fr:'Facteur queue d’aronde (× boîte en mélamine)'},
+  rTime:{en:'Assembly time', fr:'Temps d’assemblage'},
+  rMaterial:{en:'Material', fr:'Matériaux'},
+  rCutting:{en:'Cutting', fr:'Coupe'},
+  rTaping:{en:'Edge taping', fr:'Placage de chant'},
+  rFinishing:{en:'Sanding &amp; finishing', fr:'Ponçage et finition'},
+  rGlue:{en:'Glue', fr:'Colle'},
+  rLabour:{en:'Labour (assembly)', fr:'Main-d’œuvre (assemblage)'},
+  rRunners:{en:'Runners', fr:'Coulisses'},
+  rLocking:{en:'Locking devices', fr:'Dispositifs de verrouillage'},
+  rSides:{en:'Steel sides', fr:'Côtés en acier'},
+  rFixings:{en:'Front &amp; back fixing', fr:'Fixations avant et arrière'},
+  rTotal:{en:'Total', fr:'Total'},
+  rSave:{en:'MERIVOBOX saves', fr:'Économie MERIVOBOX'},
+  tableNote:{en:'Hardware lines include the selected markup. "—" = not applicable. Dovetail marked "est." = melamine box × preliminary factor.', fr:'Les lignes de quincaillerie incluent la majoration choisie. « — » = sans objet. Queue d’aronde « est. » = boîte en mélamine × facteur préliminaire.'},
+  btnPrint:{en:'Print / save PDF', fr:'Imprimer / enregistrer en PDF'},
+  subPrelim:{en:'preliminary estimate', fr:'estimation préliminaire'},
+  statWeeklyMat:{en:'Weekly material &amp; hardware delta', fr:'Écart hebdo. matériaux et quincaillerie'},
   panelSpec:{en:'MERIVOBOX specification', fr:'Spécification MERIVOBOX'},
   lblHeight:{en:'Drawer side height', fr:'Hauteur du côté de tiroir'},
   lblLength:{en:'Nominal length', fr:'Longueur nominale'},
@@ -671,9 +902,6 @@ const i18n = {
   colIndiumGrey:{en:'Indium Grey', fr:'Gris indium'},
   colOrionGrey:{en:'Orion Grey', fr:'Gris orion'},
   previewNoImage:{en:'Photo pending — showing colour only', fr:'Photo à venir — couleur seulement'},
-  subMatMerivoBase:{en:'base, at M height / 500mm', fr:'de base, hauteur M / 500 mm'},
-  effectiveCostLabel:{en:'Effective cost for selected spec:', fr:'Coût effectif pour la spécification choisie :'},
-  specNote:{en:'Height & length affect material cost below (pro-rated). Colour is visual only — no cost impact.', fr:'La hauteur et la longueur influencent le coût des matériaux ci-dessous (proratisé). La couleur est seulement visuelle — aucun impact sur le coût.'},
   unitMerivoTime:{en:'min / drw', fr:'min / tir.'},
   panelVolume:{en:'Volume inputs', fr:'Données de volume'},
   lblJobsWeek:{en:'Jobs per week', fr:'Projets par semaine'},
@@ -699,7 +927,6 @@ const i18n = {
   takeawayPlaceholder:{en:'Enter your numbers to see the comparison.', fr:'Entrez vos chiffres pour voir la comparaison.'},
   panelAnnual:{en:'Annualized ROI', fr:'Rentabilité annualisée'},
   statWeeklyLabour:{en:'Weekly labour savings', fr:'Économies hebdo. de main-d\u2019œuvre'},
-  statWeeklyMat:{en:'Weekly material delta', fr:'Écart hebdo. de matériaux'},
   statAnnualNet:{en:'Annual net savings', fr:'Économies nettes annuelles'},
   lblPayback:{en:'Equipment payback period', fr:'Période de récupération de l\u2019équipement'},
   disclaimerTitle:{en:'Unofficial tool', fr:'Outil non officiel'},
@@ -754,19 +981,119 @@ function applyLang(l){
 btnEN.addEventListener('click', ()=>applyLang('en'));
 btnFR.addEventListener('click', ()=>applyLang('fr'));
 
-const ids = ['drawers','tradRate','labourRate','matTrad','matMerivo','merivoTime','jobsWeek','weeksYear','equipCost'];
-ids.forEach(id => $(id).addEventListener('input', calc));
+/* ---- constants ---- */
+const HEIGHT_MM = { N:68.5, M:91, K:129, E:192 };
+const SQMM_PER_SQFT = 92903.04;
+const MM_PER_FT = 304.8;
+const COLOUR_PANEL = { silkwhite:'melWhite', indiumgrey:'melFolk', oriongrey:'melOrion' };
+const COLOUR_LABEL_KEY = { silkwhite:'colSilkWhite', indiumgrey:'colIndiumGrey', oriongrey:'colOrionGrey' };
+const MEL_NAME_KEY = { melOrion:'colOrionGrey', melFolk:'nameFolk', melWhite:'nameWhite', melMaple:'nameMaple' };
+const DV_NAME_KEY = { dvWalnut:'spWalnut', dvMaple:'nameMaple', dvBaltic:'spBaltic' };
+const COLS = ['mel','ply','dv','mvx'];
+const COST_ROWS = ['material','cutting','taping','finishing','glue','labour','runners','locking','sides','fixings'];
+const ROWDEFS = [['time','rTime'],['material','rMaterial'],['cutting','rCutting'],['taping','rTaping'],['finishing','rFinishing'],['glue','rGlue'],['labour','rLabour'],['runners','rRunners'],['locking','rLocking'],['sides','rSides'],['fixings','rFixings'],['total','rTotal'],['save','rSave']];
 
-/* ---- Spec selector: height / length / colour ---- */
-// Pro-rating factors — ballpark, ratioed off M-height/500mm as the reference (1.00x).
-// Not official Blum pricing. Adjust these once real per-SKU costs are available.
-const HEIGHT_FACTOR = { N: 0.80, M: 1.00, K: 1.25, E: 1.60 };
-const LENGTH_FACTOR  = { '500': 1.00, '550': 1.08 };
-const HEIGHT_MM = { N: '68.5 mm', M: '91 mm', K: '129 mm', E: '192 mm' };
-const COLOUR_LABEL_KEY = { silkwhite: 'colSilkWhite', indiumgrey: 'colIndiumGrey', oriongrey: 'colOrionGrey' };
+/* ---- PLACEHOLDER VALUES --------------------------------------------------
+   Every number below is an invented placeholder, NOT a quote. Replace with real
+   shop costs / Blum prices (these are also editable in the page). */
+const HF = { N:0.8, M:1, K:1.25, E:1.6 };      // placeholder height scaling
+const LF = { '500':1, '550':1.08 };            // placeholder length scaling
+const r2 = x => Math.round(x*100)/100;
+function defaultHw(kind, h, l){
+  if(kind === 'sides')  return r2(20 * HF[h] * LF[l]);
+  if(kind === 'runner') return r2(14 * LF[l]);
+  return r2(6 * HF[h]);                         // front + back fixing
+}
+const HW_KINDS = [['sides','asmSides'],['runner','asmMvxRunner'],['fix','asmFixings']];
 
-let spec = { height: 'M', length: '500', colour: 'silkwhite' };
+const SHOP = [
+  { head:'asmPanels', rows:[
+    ['price_melOrion','optMelOrion','unitSqft',3],
+    ['price_melFolk','optMelFolk','unitSqft',3],
+    ['price_melWhite','optMelWhite','unitSqft',3],
+    ['price_melMaple','optMelMaple','unitSqft',3],
+    ['price_ply','optPlyBirch','unitSqft',4.2],
+    ['price_dvWalnut','optDvWalnut','unitSqft',12],
+    ['price_dvMaple','optDvMaple','unitSqft',7],
+    ['price_dvBaltic','optDvBaltic','unitSqft',5]
+  ]},
+  { head:'asmCutting', rows:[
+    ['cutCNC','lblCutCNC','unitPerPiece',1],
+    ['cutManual','lblCutManual','unitPerPiece',1.5]
+  ]},
+  { head:'asmTaping', rows:[
+    ['tapeCNC','lblTapeCNC','unitPerFt',0.4],
+    ['tapeManual','lblTapeManual','unitPerFt',0.6]
+  ]},
+  { head:'asmOther', rows:[
+    ['glueWood','lblGlueWood','unitPerDrw',0.75],
+    ['glueMvx','lblGlueMvx','unitPerDrw',0.3],
+    ['finishDv','lblFinishDv','unitPerDrw',12],
+    ['woodAssembly','lblWoodAssembly','unitMinDrw',15],
+    ['dvAssembly','lblDvAssembly','unitMinDrw',20]
+  ]},
+  { head:'asmRunners', rows:[
+    ['rn_TANDEM','lblRnTandem','unitPerDrw',20],
+    ['rn_MOVENTO','lblRnMovento','unitPerDrw',30],
+    ['lockPrice','lblLock','unitPerDrw',5]
+  ]},
+  { head:'asmDvPricing', rows:[
+    { select:true, id:'dvMode', label:'lblDvMode', options:[['prelim','optDvPrelim'],['itemized','optDvItemized']] },
+    ['dvFactor','lblDovetail','unitX',2.5]
+  ]}
+];
 
+let spec = { height:'M', length:'500', colour:'silkwhite' };
+let markup = 0.25;
+const num = id => parseFloat($(id).value) || 0;
+
+/* ---- builders ---- */
+function fieldHTML(id, labelKey, unitKey, val){
+  const unit = unitKey === 'unitX'
+    ? '<span class="unit">×</span>'
+    : `<span class="unit" data-i18n="${unitKey}">${i18n[unitKey].en}</span>`;
+  return `<div class="field"><label data-i18n="${labelKey}">${i18n[labelKey].en}</label><div class="input-row tbd"><input type="number" id="${id}" value="${val}" min="0" step="0.01">${unit}</div></div>`;
+}
+
+function buildCosts(){
+  let a = '';
+  SHOP.forEach(g=>{
+    a += `<div class="asm-h" data-i18n="${g.head}">${i18n[g.head].en}</div>`;
+    g.rows.forEach(r=>{
+      if(Array.isArray(r)){
+        a += fieldHTML(r[0], r[1], r[2], r[3]);
+      } else {
+        a += `<div class="field"><label data-i18n="${r.label}">${i18n[r.label].en}</label><select class="spec-select" id="${r.id}">` +
+             r.options.map(o=>`<option value="${o[0]}" data-i18n="${o[1]}">${i18n[o[1]].en}</option>`).join('') +
+             `</select></div>`;
+      }
+    });
+  });
+  $('shopFields').innerHTML = a;
+
+  let b = '';
+  HW_KINDS.forEach(([kind, head])=>{
+    b += `<div class="asm-h" data-i18n="${head}">${i18n[head].en}</div><div class="hwgrid"><div></div><div class="hdr">500 mm</div><div class="hdr">550 mm</div>`;
+    Object.keys(HEIGHT_MM).forEach(h=>{
+      b += `<div class="lbl">${h}</div>` + ['500','550'].map(l=>
+        `<div class="input-row tbd"><input type="number" id="hw_${kind}_${h}_${l}" value="${defaultHw(kind,h,l)}" min="0" step="0.01"></div>`).join('');
+    });
+    b += '</div>';
+  });
+  $('hwFields').innerHTML = b;
+}
+
+function buildTable(){
+  let h = '<thead><tr><th></th>' + COLS.map(c=>`<th data-col="${c}"><div class="ct" id="ct_${c}"></div><div class="cs" id="cs_${c}"></div></th>`).join('') + '</tr></thead><tbody>';
+  ROWDEFS.forEach(([k, lk])=>{
+    h += `<tr class="${k==='total'?'total':(k==='save'?'save':'')}"><td data-i18n="${lk}">${i18n[lk].en}</td>` +
+         COLS.map(c=>`<td class="val" data-col="${c}" id="c_${k}_${c}">—</td>`).join('') + '</tr>';
+  });
+  h += '</tbody>';
+  $('cmpTable').innerHTML = h;
+}
+
+/* ---- spec selector ---- */
 const specHeightEl = $('specHeight'), specLengthEl = $('specLength');
 const swatches = document.querySelectorAll('.swatch');
 
@@ -779,9 +1106,7 @@ function updatePreview(){
 
   const colourWord = i18n[COLOUR_LABEL_KEY[spec.colour]][lang];
   $('previewSpecLabel').textContent = `${spec.height} · ${colourWord}`;
-  $('previewLenBadge').textContent = spec.length === '500'
-    ? i18n.len500[lang]
-    : i18n.len550[lang];
+  $('previewLenBadge').textContent = spec.length === '500' ? i18n.len500[lang] : i18n.len550[lang];
 
   const swatchColours = { silkwhite:'#F1EEE7', indiumgrey:'#6B7178', oriongrey:'#4A4F55' };
   $('previewSwatchBox').style.background = swatchColours[spec.colour];
@@ -794,64 +1119,160 @@ swatches.forEach(sw=>{
     swatches.forEach(s=>s.classList.remove('active'));
     sw.classList.add('active');
     spec.colour = sw.getAttribute('data-colour');
+    $('mvxPanel').value = COLOUR_PANEL[spec.colour];
     updatePreview();
     calc();
   });
 });
 
+['curType','method','woodWidth','runnerType','melColour','dvSpecies','mvxPanel'].forEach(id=>{
+  $(id).addEventListener('change', calc);
+});
+document.addEventListener('change', e=>{ if(e.target && e.target.id === 'dvMode') calc(); });
+
+document.querySelectorAll('#markupSeg button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    markup = parseFloat(b.getAttribute('data-markup'));
+    document.querySelectorAll('#markupSeg button').forEach(x=>x.classList.toggle('active', x===b));
+    calc();
+  });
+});
+document.addEventListener('input', e=>{
+  const t = e.target;
+  if(t.matches && t.matches('input[type="number"]')) calc();
+});
+$('btnPrint').addEventListener('click', ()=>window.print());
+
+/* ---- calculation ----
+   Wood box: 5 pieces (2 sides, front, back, bottom), 4 long edges taped (2 x depth + 2 x width)
+   -- melamine and plywood. Dovetail is not taped; it gets sanding & finishing instead.
+   MERIVOBOX: 2 wood pieces (back, bottom), 1 long edge taped (back, 1 x width); no locking devices;
+   hardware = runner + steel sides + front/back fixing.
+   Labour = assembly minutes x labour rate only (cutting and taping are costs, not labour).
+   Markup applies to hardware only. Wood height/depth follow the selected MERIVOBOX height/length.
+   Dovetail "preliminary" mode = melamine box x factor (all non-hardware lines). */
 function calc(){
-  const drawers = parseFloat($('drawers').value) || 0;
-  const tradRate = parseFloat($('tradRate').value) || 0;
-  const labourRate = parseFloat($('labourRate').value) || 0;
-  const matTrad = parseFloat($('matTrad').value) || 0;
-  const matMerivoBase = parseFloat($('matMerivo').value) || 0;
-  const merivoTime = parseFloat($('merivoTime').value) || 0;
+  const drawers = num('drawers');
+  const rate = num('labourRate');
+  const cur = $('curType').value;
+  const method = $('method').value;
+  const widthIn = parseFloat($('woodWidth').value) || 24;
+  const runner = $('runnerType').value;
+  const dvPrelim = $('dvMode').value === 'prelim';
+  const dvF = num('dvFactor');
+  const mult = 1 + markup;
 
-  const heightMult = HEIGHT_FACTOR[spec.height] ?? 1;
-  const lengthMult = LENGTH_FACTOR[spec.length] ?? 1;
-  const matMerivo = matMerivoBase * heightMult * lengthMult;
-  $('effectiveCostVal').textContent = fmt$(matMerivo) + ' / drw';
+  const W = widthIn * 25.4, D = parseFloat(spec.length), H = HEIGHT_MM[spec.height];
+  const areaWood = (2*D*H + 2*W*H + W*D) / SQMM_PER_SQFT;
+  const areaMvx  = (W*H + W*D) / SQMM_PER_SQFT;
+  const tapeWood = (2*D + 2*W) / MM_PER_FT;
+  const tapeMvx  = W / MM_PER_FT;
+  const cutRate  = method === 'cnc' ? num('cutCNC')  : num('cutManual');
+  const tapeRate = method === 'cnc' ? num('tapeCNC') : num('tapeManual');
+  const hwRun  = num('rn_' + runner) * mult;
+  const hwLock = num('lockPrice') * mult;
 
-  const tTime = tradRate > 0 ? drawers / tradRate : 0;
-  const mTime = drawers * merivoTime / 60;
-  const tLabour = tTime * labourRate;
-  const mLabour = mTime * labourRate;
-  const tMat = drawers * matTrad;
-  const mMat = drawers * matMerivo;
-  const tTotal = tLabour + tMat;
-  const mTotal = mLabour + mMat;
-  const saved = tTotal - mTotal;
+  const wood = (priceId, assemblyId, taped) => ({
+    min: num(assemblyId),
+    material: areaWood * num(priceId),
+    cutting: 5 * cutRate,
+    taping: taped ? tapeWood * tapeRate : null,
+    finishing: taped ? null : num('finishDv'),
+    glue: num('glueWood'),
+    runners: hwRun, locking: hwLock, sides: null, fixings: null
+  });
+
+  const mel = wood('price_' + $('melColour').value, 'woodAssembly', true);
+  const ply = wood('price_ply', 'woodAssembly', true);
+  const dv = dvPrelim
+    ? { min: mel.min*dvF, material: mel.material*dvF, cutting: mel.cutting*dvF, taping: mel.taping*dvF,
+        finishing: null, glue: mel.glue*dvF, runners: hwRun, locking: hwLock, sides: null, fixings: null }
+    : wood('price_' + $('dvSpecies').value, 'dvAssembly', false);
+
+  const hw = kind => num(`hw_${kind}_${spec.height}_${spec.length}`) * mult;
+  const mvx = {
+    min: num('merivoTime'),
+    material: areaMvx * num('price_' + $('mvxPanel').value),
+    cutting: 2 * cutRate,
+    taping: tapeMvx * tapeRate,
+    finishing: null,
+    glue: num('glueMvx'),
+    runners: hw('runner'), locking: null, sides: hw('sides'), fixings: hw('fix')
+  };
+
+  const data = { mel, ply, dv, mvx };
+  COLS.forEach(c=>{
+    const x = data[c];
+    x.labour = x.min / 60 * rate;
+    x.total = COST_ROWS.reduce((s,k)=> s + (x[k] || 0), 0);
+  });
+
+  // table
+  COLS.forEach(c=>{
+    const x = data[c];
+    $(`c_time_${c}`).textContent = fmtH(x.min * drawers / 60);
+    COST_ROWS.forEach(k=>{
+      $(`c_${k}_${c}`).textContent = x[k] === null ? '—' : fmt$(x[k] * drawers);
+    });
+    $(`c_total_${c}`).textContent = fmt$(x.total * drawers);
+    $(`c_save_${c}`).textContent = c === 'mvx' ? '—' : fmt$((x.total - mvx.total) * drawers);
+  });
+  $('ct_mel').textContent = i18n.optMelamine[lang];
+  $('ct_ply').textContent = i18n.optPlywood[lang];
+  $('ct_dv').textContent  = i18n.optDovetail[lang] + (dvPrelim ? ' (est.)' : '');
+  $('ct_mvx').textContent = 'MERIVOBOX';
+  $('cs_mel').textContent = i18n[MEL_NAME_KEY[$('melColour').value]][lang];
+  $('cs_ply').textContent = i18n.nameBirch[lang];
+  $('cs_dv').textContent  = dvPrelim ? '× ' + dvF : i18n[DV_NAME_KEY[$('dvSpecies').value]][lang];
+  $('cs_mvx').textContent = `${spec.height} · ${spec.length} mm · ${i18n[COLOUR_LABEL_KEY[spec.colour]][lang]}`;
+  document.querySelectorAll('[data-col]').forEach(el=>{
+    const c = el.getAttribute('data-col');
+    el.classList.toggle('cur', (c === 'mel' && cur === 'melamine') || (c === 'ply' && cur === 'plywood') || (c === 'dv' && cur === 'dovetail'));
+    el.classList.toggle('mvx', c === 'mvx');
+  });
+
+  // headline vs the shop's current drawer
+  const curKey = { melamine:'mel', plywood:'ply', dovetail:'dv' }[cur];
+  const cx = data[curKey];
+  const curName = { melamine:i18n.optMelamine[lang], plywood:i18n.optPlywood[lang], dovetail:i18n.optDovetail[lang] }[cur].toLowerCase();
+  const saved = (cx.total - mvx.total) * drawers;
+  const tTime = cx.min * drawers / 60;
+  const mTime = mvx.min * drawers / 60;
   const timeSaved = tTime - mTime;
   const reduction = tTime > 0 ? timeSaved / tTime : 0;
 
-  $('tTime').textContent = fmtH(tTime);
-  $('mTime').textContent = fmtH(mTime);
-  $('tLabour').textContent = fmt$(tLabour);
-  $('mLabour').textContent = fmt$(mLabour);
-  $('tMat').textContent = fmt$(tMat);
-  $('mMat').textContent = fmt$(mMat);
-  $('tTotal').textContent = fmt$(tTotal);
-  $('mTotal').textContent = fmt$(mTotal);
-
+  $('rulerTypeName').textContent = curName;
   $('rulerTradLabel').textContent = fmtH(tTime);
   $('rulerMerivoLabel').textContent = fmtH(mTime);
-  const pct = tTime > 0 ? Math.min(100, (mTime/tTime)*100) : 0;
-  $('rulerMerivoFill').style.width = pct + '%';
+  $('rulerMerivoFill').style.width = (tTime > 0 ? Math.min(100, (mTime / tTime) * 100) : 0) + '%';
 
-  const savedLabelText = i18n.savedLabel[lang];
-  $('savedNum').innerHTML = fmt$(saved) + `<span>${savedLabelText}</span>`;
-  const timeSavedStr = timeSaved.toLocaleString(localeFor(),{maximumFractionDigits:1});
-  $('takeawayText').innerHTML = lang === 'fr'
-    ? `Le passage à MERIVOBOX pour un <strong>projet de ${drawers} tiroirs</strong> permet d\u2019économiser environ <strong>${fmt$(saved)}</strong> et <strong>${timeSavedStr} heures</strong> (<strong>${fmtPct(reduction)} plus rapide</strong>).`
-    : `Switching to MERIVOBOX on a <strong>${drawers}-drawer job</strong> saves roughly <strong>${fmt$(saved)}</strong> and <strong>${timeSavedStr} hours</strong> (<strong>${fmtPct(reduction)} faster</strong>).`;
+  $('savedNum').innerHTML = fmt$(saved) + `<span>${i18n.savedLabel[lang]}</span>`;
+  const timeSavedStr = timeSaved.toLocaleString(localeFor(), {maximumFractionDigits:1});
+  if(saved >= 0){
+    $('takeawayText').innerHTML = lang === 'fr'
+      ? `Pour un <strong>projet de ${drawers} tiroirs</strong>, passer du tiroir en ${curName} à MERIVOBOX permet d’économiser environ <strong>${fmt$(saved)}</strong> et <strong>${timeSavedStr} heures</strong> (<strong>${fmtPct(reduction)} plus rapide</strong>).`
+      : `Switching from ${curName} to MERIVOBOX on a <strong>${drawers}-drawer job</strong> saves roughly <strong>${fmt$(saved)}</strong> and <strong>${timeSavedStr} hours</strong> (<strong>${fmtPct(reduction)} faster</strong>).`;
+  } else {
+    $('takeawayText').innerHTML = lang === 'fr'
+      ? `Avec ces données, MERIVOBOX coûte environ <strong>${fmt$(-saved)}</strong> de plus qu’un tiroir en ${curName} pour un <strong>projet de ${drawers} tiroirs</strong>, tout en économisant <strong>${timeSavedStr} heures</strong> de main-d’œuvre.`
+      : `On these inputs, MERIVOBOX costs roughly <strong>${fmt$(-saved)}</strong> more than a ${curName} drawer on a <strong>${drawers}-drawer job</strong>, while saving <strong>${timeSavedStr} hours</strong> of labour time.`;
+  }
+
+  // print summary line
+  const methodName = i18n[method === 'cnc' ? 'optCNC' : 'optManual'][lang];
+  $('printSummary').textContent = [
+    `${drawers} ${i18n.unitDrawers[lang]}`, `${widthIn}"`,
+    `${i18n.lblLabourRate[lang]} ${fmt$(rate)}/${lang === 'fr' ? 'h' : 'hr'}`,
+    methodName, `${i18n.lblMarkup[lang]} +${Math.round(markup*100)}%`, runner
+  ].join(' · ');
 
   if(mode === 'enhanced'){
-    const jobsWeek = parseFloat($('jobsWeek').value) || 0;
-    const weeksYear = parseFloat($('weeksYear').value) || 0;
-    const equipCost = parseFloat($('equipCost').value) || 0;
+    const jobsWeek = num('jobsWeek');
+    const weeksYear = num('weeksYear');
+    const equipCost = num('equipCost');
 
-    const weeklyLabour = (tLabour - mLabour) * jobsWeek;
-    const weeklyMat = (mMat - tMat) * jobsWeek;
+    const weeklyLabour = (cx.labour - mvx.labour) * drawers * jobsWeek;
+    const weeklyMat = ((mvx.total - mvx.labour) - (cx.total - cx.labour)) * drawers * jobsWeek;
     const weeklyNet = weeklyLabour - weeklyMat;
     const annualNet = weeklyNet * weeksYear;
 
@@ -860,10 +1281,10 @@ function calc(){
     $('annualNet').textContent = fmt$(annualNet);
 
     if(equipCost === 0){
-      $('payback').textContent = lang === 'fr' ? 's.o. — aucun coût d\u2019équipement saisi' : 'n/a — no equipment cost entered';
+      $('payback').textContent = lang === 'fr' ? 's.o. — aucun coût d’équipement saisi' : 'n/a — no equipment cost entered';
     } else if(weeklyNet > 0){
       const weeks = equipCost / weeklyNet;
-      const weeksStr = weeks.toLocaleString(localeFor(),{maximumFractionDigits:1});
+      const weeksStr = weeks.toLocaleString(localeFor(), {maximumFractionDigits:1});
       $('payback').textContent = lang === 'fr' ? weeksStr + ' semaines' : weeksStr + ' weeks';
     } else {
       $('payback').textContent = lang === 'fr' ? 's.o.' : 'n/a';
@@ -871,8 +1292,13 @@ function calc(){
   }
 }
 
+buildCosts();
+buildTable();
+$('mvxPanel').value = COLOUR_PANEL[spec.colour];
 updatePreview();
 calc();
 </script>
+
+
 </body>
 </html>
