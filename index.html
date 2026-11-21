@@ -1021,6 +1021,7 @@ const COLOUR_PANEL = { silkwhite:'melWhite', indiumgrey:'melFolk', oriongrey:'me
 const COLOUR_LABEL_KEY = { silkwhite:'colSilkWhite', indiumgrey:'colIndiumGrey', oriongrey:'colOrionGrey' };
 const MEL_NAME_KEY = { melOrion:'colOrionGrey', melFolk:'nameFolk', melWhite:'nameWhite', melMaple:'nameMaple' };
 const DV_NAME_KEY = { dvWalnut:'spWalnut', dvMaple:'nameMaple', dvBaltic:'spBaltic' };
+const COLOUR_IMG = { silkwhite:'Images/merivobox-silkwhite.jpg.png', indiumgrey:'Images/merivobox-indiumgrey.jpg.png', oriongrey:'Images/merivobox-oriongrey.jpg.png' };
 const COLS = ['mel','ply','dv','mvx'];
 const COST_ROWS = ['material','cutting','taping','finishing','glue','labour','runners','locking','sides','fixings'];
 const ROWDEFS = [['time','rTime'],['material','rMaterial'],['cutting','rCutting'],['taping','rTaping'],['finishing','rFinishing'],['glue','rGlue'],['labour','rLabour'],['runners','rRunners'],['locking','rLocking'],['sides','rSides'],['fixings','rFixings'],['total','rTotal'],['save','rSave']];
@@ -1134,7 +1135,7 @@ function updatePreview(){
   const fallback = $('previewFallback');
   img.style.display = '';
   fallback.style.display = 'none';
-  img.src = `images/merivobox-${spec.colour}.jpg`;
+  img.src = COLOUR_IMG[spec.colour];
 
   const colourWord = i18n[COLOUR_LABEL_KEY[spec.colour]][lang];
   $('previewSpecLabel').textContent = `${spec.height} · ${colourWord}`;
@@ -1327,8 +1328,8 @@ function calc(){
 /* ---- assembly equipment: one-time cost (distributor pricing + 12% markup) and assembly time ---- */
 const EQUIP_MARKUP = 0.12;
 const EQUIP = {
-  boxfixem:   { price:178.35,               min:2,   img:'images/boxfix-em.jpg' },
-  boxfixplus: { price:5840 + 690 + 1620,    min:0.5, img:'images/boxfix-plus.jpg' }   // device + air nailer + nail kit
+  boxfixem:   { price:178.35,               min:2,   img:'Images/boxfix-em.jpg.jpg' },
+  boxfixplus: { price:5840 + 690 + 1620,    min:0.5, img:'Images/boxfix-plus.jpg.jpg' }   // device + air nailer + nail kit
 };
 function applyEquip(){
   const e = EQUIP[$('equipType').value];
