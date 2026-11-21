@@ -507,6 +507,14 @@
     #printSummary{display:block;}
     .panel{border:none;padding:0;}
   }
+  .hwgrid{grid-template-columns:30px repeat(4,minmax(0,1fr));gap:4px;}
+  .hwgrid .input-row input{padding:6px 3px;font-size:11.5px;text-align:right;}
+  .equip-img{display:none;width:100%;height:170px;object-fit:cover;border-radius:6px;margin-top:8px;border:1px solid var(--line);}
+  .preview-img-wrap{background:#fff;}
+  .preview-img-wrap img{object-fit:contain;}
+  .equip-img{height:140px;}
+  label.owned{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;font-weight:400;}
+  label.owned input{width:auto;}
 </style>
 </head>
 <body>
@@ -529,7 +537,7 @@
     </div>
   </header>
 
-  <div class="banner" data-i18n="placeholderBanner">Illustrative estimate. Fields with an orange dashed outline hold placeholder values pending real quotes — replace them with actual numbers before sharing results.</div>
+  <div class="banner" data-i18n="placeholderBanner">Illustrative estimate. Hardware uses distributor pricing; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.</div>
 
   <div class="grid">
 
@@ -622,6 +630,8 @@
         <div class="field">
           <label data-i18n="lblLength">Nominal length</label>
           <select class="spec-select" id="specLength">
+            <option value="400" data-i18n="len400">400 mm (16")</option>
+            <option value="450" data-i18n="len450">450 mm (18")</option>
             <option value="500" selected data-i18n="len500">500 mm (20")</option>
             <option value="550" data-i18n="len550">550 mm (22")</option>
           </select>
@@ -654,6 +664,16 @@
           </select>
         </div>
         <div class="field">
+          <label data-i18n="lblEquipType">Assembly</label>
+          <select class="spec-select" id="equipType">
+            <option value="boxfixem" selected data-i18n="optEquipEM">BOXFIX E-M (Manual)</option>
+            <option value="boxfixplus" data-i18n="optEquipPlus">BOXFIX plus (Assembly Device)</option>
+          </select>
+          <label class="owned"><input type="checkbox" id="equipOwned"> <span data-i18n="lblEquipOwned">Already owned (no purchase cost)</span></label>
+          <img class="equip-img" id="equipImg" alt="">
+          <span class="sub" data-i18n="subEquipTime">Sets the assembly time below.</span>
+        </div>
+        <div class="field">
           <label data-i18n="lblMerivoTime">MERIVOBOX assembly time</label>
           <div class="input-row"><input type="number" id="merivoTime" value="2" min="0.1" step="0.1"><span class="unit" data-i18n="unitMerivoTime">min / drw</span></div>
         </div>
@@ -678,13 +698,13 @@
 
       <div class="panel" id="costsPanel">
         <h2 data-i18n="panelCosts">Shop costs &amp; prices</h2>
-        <div class="field"><span class="sub" data-i18n="subCostsNote">Every value in these sections is a placeholder. Overwrite with the shop's own numbers.</span></div>
+        <div class="field"><span class="sub" data-i18n="subCostsNote">Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices are distributor pricing before markup.</span></div>
         <details class="assump">
           <summary data-i18n="detShop">Shop costs (wood drawers &amp; panels)</summary>
           <div id="shopFields"></div>
         </details>
         <details class="assump">
-          <summary data-i18n="detHw">Blum hardware prices (MERIVOBOX, 40 kg)</summary>
+          <summary data-i18n="detHw">Distributor hardware pricing (before markup)</summary>
           <div id="hwFields"></div>
         </details>
       </div>
@@ -701,7 +721,8 @@
         </div>
         <div class="field">
           <label><span data-i18n="lblEquip">BOXFIX / equipment cost</span> <span class="sub" data-i18n="subOptional">optional</span></label>
-          <div class="input-row"><input type="number" id="equipCost" value="0" min="0" step="1"><span class="unit" data-i18n="unitOneTime">$ one-time</span></div>
+          <div class="input-row"><input type="number" id="equipCost" value="0" min="0" step="any"><span class="unit" data-i18n="unitOneTime">$ one-time</span></div>
+          <span class="sub" data-i18n="subEquipNote">One-time cost.</span>
         </div>
       </div>
     </div>
@@ -806,7 +827,12 @@ const i18n = {
   lblLabourRate:{en:'Labour rate', fr:'Taux horaire'},
   unitLabourRate:{en:'$ / hr', fr:'$ / h'},
   lblMerivoTime:{en:'MERIVOBOX assembly time', fr:'Temps d\u2019assemblage MERIVOBOX'},
-  placeholderBanner:{en:'Illustrative estimate. Fields with an orange dashed outline hold placeholder values pending real quotes — replace them with actual numbers before sharing results.', fr:'Estimation illustrative. Les champs à contour orange pointillé contiennent des valeurs provisoires en attente de vraies soumissions — remplacez-les par des chiffres réels avant de partager les résultats.'},
+  placeholderBanner:{en:'Illustrative estimate. Hardware uses distributor pricing; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.', fr:'Estimation illustrative. La quincaillerie utilise les prix du distributeur; les champs à contour orange pointillé contiennent des coûts d’atelier provisoires — remplacez-les par les chiffres réels de l’atelier avant de partager les résultats.'},
+  len400:{en:'400 mm (16")', fr:'400 mm (16 po)'},
+  len450:{en:'450 mm (18")', fr:'450 mm (18 po)'},
+  asmWoodRunners:{en:'Wood-drawer runners — TANDEM / MOVENTO ($ / pair, by length mm)', fr:'Coulisses tiroirs en bois — TANDEM / MOVENTO ($ / paire, selon la longueur mm)'},
+  lblLockTandem:{en:'Locking devices — TANDEM', fr:'Dispositifs de verrouillage — TANDEM'},
+  lblLockMovento:{en:'Locking devices — MOVENTO', fr:'Dispositifs de verrouillage — MOVENTO'},
   lblCurType:{en:'Shop’s current drawer', fr:'Tiroir actuel de l’atelier'},
   lblMethod:{en:'Production method', fr:'Méthode de production'},
   subMethod:{en:'cutting &amp; taping, all drawer types', fr:'coupe et placage, tous les types de tiroirs'},
@@ -838,15 +864,14 @@ const i18n = {
   optPly:{en:'Plywood (pre-finished birch)', fr:'Contreplaqué (bouleau préfini)'},
   specNote:{en:'Height and length also set the wood drawers’ height and depth in the comparison. Colour is visual only — it just selects the matching panel.', fr:'La hauteur et la longueur déterminent aussi la hauteur et la profondeur des tiroirs en bois dans la comparaison. La couleur est visuelle seulement — elle sert à choisir le panneau assorti.'},
   panelCosts:{en:'Shop costs &amp; prices', fr:'Coûts de l’atelier et prix'},
-  subCostsNote:{en:'Every value in these sections is a placeholder. Overwrite with the shop’s own numbers.', fr:'Chaque valeur de ces sections est provisoire. Remplacez-la par les chiffres de l’atelier.'},
+  subCostsNote:{en:'Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices are distributor pricing before markup.', fr:'Les coûts d’atelier sont provisoires — remplacez-les par les chiffres de l’atelier. Les prix de la quincaillerie sont ceux du distributeur, avant majoration.'},
   detShop:{en:'Shop costs (wood drawers &amp; panels)', fr:'Coûts de l’atelier (tiroirs en bois et panneaux)'},
-  detHw:{en:'Blum hardware prices (MERIVOBOX, 40 kg)', fr:'Prix de la quincaillerie Blum (MERIVOBOX, 40 kg)'},
+  detHw:{en:'Distributor hardware pricing (before markup)', fr:'Prix de la quincaillerie — distributeur (avant majoration)'},
   asmPanels:{en:'Panel / wood price', fr:'Prix des panneaux / du bois'},
   asmCutting:{en:'Cutting', fr:'Coupe'},
   asmTaping:{en:'Edge taping', fr:'Placage de chant'},
   asmOther:{en:'Glue, finishing, assembly time', fr:'Colle, finition, temps d’assemblage'},
-  asmRunners:{en:'Runners &amp; locking devices (wood drawers)', fr:'Coulisses et dispositifs de verrouillage (tiroirs en bois)'},
-  asmDvPricing:{en:'Dovetail pricing', fr:'Prix — queue d’aronde'},
+    asmDvPricing:{en:'Dovetail pricing', fr:'Prix — queue d’aronde'},
   asmSides:{en:'MERIVOBOX steel sides ($ / drawer)', fr:'Côtés en acier MERIVOBOX ($ / tiroir)'},
   asmMvxRunner:{en:'MERIVOBOX runner ($ / drawer)', fr:'Coulisse MERIVOBOX ($ / tiroir)'},
   asmFixings:{en:'MERIVOBOX front &amp; back fixing ($ / drawer)', fr:'Fixations avant et arrière MERIVOBOX ($ / tiroir)'},
@@ -892,6 +917,13 @@ const i18n = {
   btnPrint:{en:'Print / save PDF', fr:'Imprimer / enregistrer en PDF'},
   subPrelim:{en:'preliminary estimate', fr:'estimation préliminaire'},
   statWeeklyMat:{en:'Weekly material &amp; hardware delta', fr:'Écart hebdo. matériaux et quincaillerie'},
+  lblEquipType:{en:'Assembly', fr:'Assemblage'},
+  optEquipNone:{en:'None / already owned', fr:'Aucun / déjà possédé'},
+  optEquipEM:{en:'BOXFIX E-M (Manual)', fr:'BOXFIX E-M (manuel)'},
+  optEquipPlus:{en:'BOXFIX plus (Assembly Device)', fr:'BOXFIX plus (dispositif d’assemblage)'},
+  subEquipNote:{en:'One-time cost with a 12% markup. BOXFIX plus includes the air nailer and nail kit. Set by the Assembly choice; you can overwrite the amount.', fr:'Coût unique avec majoration de 12 %. BOXFIX plus comprend le cloueur pneumatique et la trousse de clous. Déterminé par le choix d’assemblage; vous pouvez modifier le montant.'},
+  lblEquipOwned:{en:'Already owned (no purchase cost)', fr:'Déjà possédé (aucun coût d’achat)'},
+  subEquipTime:{en:'Sets the assembly time below: Manual 2 min, Assembly Device 0.5 min (editable).', fr:'Détermine le temps d’assemblage ci-dessous : manuel 2 min, dispositif d’assemblage 0,5 min (modifiable).'},
   panelSpec:{en:'MERIVOBOX specification', fr:'Spécification MERIVOBOX'},
   lblHeight:{en:'Drawer side height', fr:'Hauteur du côté de tiroir'},
   lblLength:{en:'Nominal length', fr:'Longueur nominale'},
@@ -993,17 +1025,12 @@ const COLS = ['mel','ply','dv','mvx'];
 const COST_ROWS = ['material','cutting','taping','finishing','glue','labour','runners','locking','sides','fixings'];
 const ROWDEFS = [['time','rTime'],['material','rMaterial'],['cutting','rCutting'],['taping','rTaping'],['finishing','rFinishing'],['glue','rGlue'],['labour','rLabour'],['runners','rRunners'],['locking','rLocking'],['sides','rSides'],['fixings','rFixings'],['total','rTotal'],['save','rSave']];
 
-/* ---- PLACEHOLDER VALUES --------------------------------------------------
-   Every number below is an invented placeholder, NOT a quote. Replace with real
-   shop costs / Blum prices (these are also editable in the page). */
-const HF = { N:0.8, M:1, K:1.25, E:1.6 };      // placeholder height scaling
-const LF = { '500':1, '550':1.08 };            // placeholder length scaling
+/* ---- HARDWARE PRICING (distributor pricing, CAD, before markup) ----
+   Values are defaults and remain editable in the page. */
+const HW_DATA = {"sides": {"N": {"400": 19.3732, "450": 19.6026, "500": 19.8172, "550": 21.6154}, "M": {"400": 17.649, "450": 17.8488, "500": 18.0634, "550": 19.6914}, "K": {"400": 22.9104, "450": 23.1102, "500": 23.31, "550": 24.9306}, "E": {"400": 31.7016, "450": 32.1012, "500": 32.5082, "550": 34.9502}}, "runner": {"N": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}, "M": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}, "K": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}, "E": {"400": 18.5962, "450": 18.8552, "500": 19.1364, "550": 20.757}}, "fix": {"N": {"400": 1.9388, "450": 1.9388, "500": 1.9388, "550": 1.9388}, "M": {"400": 1.85, "450": 1.85, "500": 1.85, "550": 1.85}, "K": {"400": 2.0572, "450": 2.0572, "500": 2.0572, "550": 2.0572}, "E": {"400": 3.6482, "450": 3.6482, "500": 3.6482, "550": 3.6482}}, "rn": {"TANDEM": {"400": 19.3436, "450": 19.5878, "500": 19.8468, "550": 20.7792}, "MOVENTO": {"400": 22.7846, "450": 23.0288, "500": 23.3026, "550": 24.6716}}, "lock": {"MOVENTO": 2.59, "TANDEM": 1.4356}};
 const r2 = x => Math.round(x*100)/100;
-function defaultHw(kind, h, l){
-  if(kind === 'sides')  return r2(20 * HF[h] * LF[l]);
-  if(kind === 'runner') return r2(14 * LF[l]);
-  return r2(6 * HF[h]);                         // front + back fixing
-}
+const LENGTHS = ['400','450','500','550'];
+const LOCK_KINDS = ['TANDEM','MOVENTO'];
 const HW_KINDS = [['sides','asmSides'],['runner','asmMvxRunner'],['fix','asmFixings']];
 
 const SHOP = [
@@ -1032,11 +1059,6 @@ const SHOP = [
     ['woodAssembly','lblWoodAssembly','unitMinDrw',15],
     ['dvAssembly','lblDvAssembly','unitMinDrw',20]
   ]},
-  { head:'asmRunners', rows:[
-    ['rn_TANDEM','lblRnTandem','unitPerDrw',20],
-    ['rn_MOVENTO','lblRnMovento','unitPerDrw',30],
-    ['lockPrice','lblLock','unitPerDrw',5]
-  ]},
   { head:'asmDvPricing', rows:[
     { select:true, id:'dvMode', label:'lblDvMode', options:[['prelim','optDvPrelim'],['itemized','optDvItemized']] },
     ['dvFactor','lblDovetail','unitX',2.5]
@@ -1048,11 +1070,11 @@ let markup = 0.25;
 const num = id => parseFloat($(id).value) || 0;
 
 /* ---- builders ---- */
-function fieldHTML(id, labelKey, unitKey, val){
+function fieldHTML(id, labelKey, unitKey, val, real){
   const unit = unitKey === 'unitX'
     ? '<span class="unit">×</span>'
     : `<span class="unit" data-i18n="${unitKey}">${i18n[unitKey].en}</span>`;
-  return `<div class="field"><label data-i18n="${labelKey}">${i18n[labelKey].en}</label><div class="input-row tbd"><input type="number" id="${id}" value="${val}" min="0" step="0.01">${unit}</div></div>`;
+  return `<div class="field"><label data-i18n="${labelKey}">${i18n[labelKey].en}</label><div class="input-row${real ? '' : ' tbd'}"><input type="number" id="${id}" value="${val}" min="0" step="any">${unit}</div></div>`;
 }
 
 function buildCosts(){
@@ -1072,13 +1094,23 @@ function buildCosts(){
   $('shopFields').innerHTML = a;
 
   let b = '';
+  const hdrRow = '<div></div>' + LENGTHS.map(l=>`<div class="hdr">${l}</div>`).join('');
   HW_KINDS.forEach(([kind, head])=>{
-    b += `<div class="asm-h" data-i18n="${head}">${i18n[head].en}</div><div class="hwgrid"><div></div><div class="hdr">500 mm</div><div class="hdr">550 mm</div>`;
+    b += `<div class="asm-h" data-i18n="${head}">${i18n[head].en}</div><div class="hwgrid">${hdrRow}`;
     Object.keys(HEIGHT_MM).forEach(h=>{
-      b += `<div class="lbl">${h}</div>` + ['500','550'].map(l=>
-        `<div class="input-row tbd"><input type="number" id="hw_${kind}_${h}_${l}" value="${defaultHw(kind,h,l)}" min="0" step="0.01"></div>`).join('');
+      b += `<div class="lbl">${h}</div>` + LENGTHS.map(l=>
+        `<div class="input-row"><input type="number" id="hw_${kind}_${h}_${l}" value="${HW_DATA[kind][h][l]}" min="0" step="any"></div>`).join('');
     });
     b += '</div>';
+  });
+  b += `<div class="asm-h" data-i18n="asmWoodRunners">${i18n.asmWoodRunners.en}</div><div class="hwgrid">${hdrRow}`;
+  LOCK_KINDS.forEach(k=>{
+    b += `<div class="lbl">${k.slice(0,3)}</div>` + LENGTHS.map(l=>
+      `<div class="input-row"><input type="number" id="rn_${k}_${l}" value="${HW_DATA.rn[k][l]}" min="0" step="any"></div>`).join('');
+  });
+  b += '</div>';
+  LOCK_KINDS.forEach(k=>{
+    b += fieldHTML('lock_'+k, k === 'TANDEM' ? 'lblLockTandem' : 'lblLockMovento', 'unitPerDrw', HW_DATA.lock[k], true);
   });
   $('hwFields').innerHTML = b;
 }
@@ -1102,11 +1134,11 @@ function updatePreview(){
   const fallback = $('previewFallback');
   img.style.display = '';
   fallback.style.display = 'none';
-  img.src = `images/merivobox-${spec.height}-${spec.colour}.jpg`;
+  img.src = `images/merivobox-${spec.colour}.jpg`;
 
   const colourWord = i18n[COLOUR_LABEL_KEY[spec.colour]][lang];
   $('previewSpecLabel').textContent = `${spec.height} · ${colourWord}`;
-  $('previewLenBadge').textContent = spec.length === '500' ? i18n.len500[lang] : i18n.len550[lang];
+  $('previewLenBadge').textContent = i18n['len' + spec.length][lang];
 
   const swatchColours = { silkwhite:'#F1EEE7', indiumgrey:'#6B7178', oriongrey:'#4A4F55' };
   $('previewSwatchBox').style.background = swatchColours[spec.colour];
@@ -1169,8 +1201,8 @@ function calc(){
   const tapeMvx  = W / MM_PER_FT;
   const cutRate  = method === 'cnc' ? num('cutCNC')  : num('cutManual');
   const tapeRate = method === 'cnc' ? num('tapeCNC') : num('tapeManual');
-  const hwRun  = num('rn_' + runner) * mult;
-  const hwLock = num('lockPrice') * mult;
+  const hwRun  = num(`rn_${runner}_${spec.length}`) * mult;
+  const hwLock = num('lock_' + runner) * mult;
 
   const wood = (priceId, assemblyId, taped) => ({
     min: num(assemblyId),
@@ -1292,11 +1324,27 @@ function calc(){
   }
 }
 
+/* ---- assembly equipment: one-time cost (distributor pricing + 12% markup) and assembly time ---- */
+const EQUIP_MARKUP = 0.12;
+const EQUIP = {
+  boxfixem:   { price:178.35,               min:2,   img:'images/boxfix-em.jpg' },
+  boxfixplus: { price:5840 + 690 + 1620,    min:0.5, img:'images/boxfix-plus.jpg' }   // device + air nailer + nail kit
+};
+function applyEquip(){
+  const e = EQUIP[$('equipType').value];
+  $('equipCost').value = $('equipOwned').checked ? '0.00' : r2(e.price * (1 + EQUIP_MARKUP)).toFixed(2);
+  $('merivoTime').value = e.min;
+  const im = $('equipImg');
+  im.src = e.img; im.style.display = 'block';
+  calc();
+}
+document.addEventListener('change', ev=>{ if(ev.target && (ev.target.id === 'equipType' || ev.target.id === 'equipOwned')) applyEquip(); });
+
 buildCosts();
 buildTable();
 $('mvxPanel').value = COLOUR_PANEL[spec.colour];
 updatePreview();
-calc();
+applyEquip();
 </script>
 
 
