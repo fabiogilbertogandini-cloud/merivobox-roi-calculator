@@ -521,6 +521,13 @@
   .howbody p{margin:0 0 8px;} .howbody ol,.howbody ul{margin:0 0 8px;padding-left:20px;} .howbody li{margin-bottom:3px;}
   .hint{font-size:12px;color:var(--muted);margin:-4px 0 12px;line-height:1.45;}
   @media print{ details.howto,.hint{display:none !important;} }
+
+  .stmts{margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:#fff;}
+  .stmts h3{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+  .stmts ul{margin:0;padding-left:18px;font-size:14.5px;line-height:1.55;}
+  .stmts li{margin-bottom:5px;}
+  .stmt-note{margin-top:8px;font-size:12px;color:#8a5a00;border-left:3px solid #E08A00;padding-left:8px;}
+  @media print{ #volumePanel{display:none !important;} }
 </style>
 </head>
 <body>
@@ -543,7 +550,7 @@
     </div>
   </header>
 
-  <div class="banner" data-i18n="placeholderBanner">Illustrative estimate. Hardware prices include the selected markup; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.</div>
+  <div class="banner" data-i18n="placeholderBanner">Illustrative estimate. Hardware prices are estimates; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.</div>
 
   <details class="howto" id="howtoJob" open>
     <summary data-i18n="howSummaryJob">How to read this — Per job</summary>
@@ -553,6 +560,33 @@
     <summary data-i18n="howSummaryAnnual">How to read this — Annual</summary>
     <div class="howbody" data-i18n="howBodyAnnual"></div>
   </details>
+
+      <div class="panel" id="volumePanel" style="margin-bottom:16px;">
+        <h2 data-i18n="panelVolume">Volume inputs</h2>
+        <div class="field">
+          <label data-i18n="lblJobsWeek">Jobs per week</label>
+          <div class="input-row"><input type="number" id="jobsWeek" value="2" min="0" step="0.1"><span class="unit" data-i18n="unitJobsWeek">jobs / wk</span></div>
+        </div>
+        <div class="field">
+          <label data-i18n="lblWeeksYear">Weeks worked per year</label>
+          <div class="input-row"><input type="number" id="weeksYear" value="48" min="1" step="1"><span class="unit" data-i18n="unitWeeksYear">wks / yr</span></div>
+        </div>
+        <div class="field">
+          <label data-i18n="lblEquipType">Assembly</label>
+          <select class="spec-select" id="equipType">
+            <option value="boxfixem" selected data-i18n="optEquipEM">BOXFIX E-M (Manual)</option>
+            <option value="boxfixplus" data-i18n="optEquipPlus">BOXFIX plus (Assembly Device)</option>
+          </select>
+          <label class="owned"><input type="checkbox" id="equipOwned"> <span data-i18n="lblEquipOwned">Already owned (no purchase cost)</span></label>
+          <img class="equip-img" id="equipImg" alt="">
+          <span class="sub" data-i18n="subEquipTime">Sets the assembly time.</span>
+        </div>
+        <div class="field">
+          <label><span data-i18n="lblEquip">BOXFIX / equipment cost</span> <span class="sub" data-i18n="subOptional">optional</span></label>
+          <div class="input-row"><input type="number" id="equipCost" value="0" min="0" step="any"><span class="unit" data-i18n="unitOneTime">$ one-time</span></div>
+          <span class="sub" data-i18n="subEquipNote">One-time cost.</span>
+        </div>
+      </div>
 
   <div class="grid">
 
@@ -584,14 +618,6 @@
             <option value="cnc" selected data-i18n="optCNC">CNC route</option>
             <option value="manual" data-i18n="optManual">Manual route (table saw)</option>
           </select>
-        </div>
-        <div class="field">
-          <label><span data-i18n="lblMarkup">Hardware markup</span> <span class="sub" data-i18n="subMarkup">hardware only — not material or labour</span></label>
-          <div class="seg" id="markupSeg">
-            <button type="button" data-markup="0.15">+15%</button>
-            <button type="button" data-markup="0.25" class="active">+25%</button>
-            <button type="button" data-markup="0.35">+35%</button>
-          </div>
         </div>
       </div>
 
@@ -708,38 +734,11 @@
 
       <div class="panel" id="costsPanel">
         <h2 data-i18n="panelCosts">Shop costs &amp; prices</h2>
-        <div class="field"><span class="sub" data-i18n="subCostsNote">Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices already include the selected markup.</span></div>
+        <div class="field"><span class="sub" data-i18n="subCostsNote">Shop costs are placeholders — overwrite with the shop’s own numbers.</span></div>
         <details class="assump">
           <summary data-i18n="detShop">Shop costs (wood drawers &amp; panels)</summary>
           <div id="shopFields"></div>
         </details>
-      </div>
-
-      <div class="panel" id="volumePanel">
-        <h2 data-i18n="panelVolume">Volume inputs</h2>
-        <div class="field">
-          <label data-i18n="lblJobsWeek">Jobs per week</label>
-          <div class="input-row"><input type="number" id="jobsWeek" value="2" min="0" step="0.1"><span class="unit" data-i18n="unitJobsWeek">jobs / wk</span></div>
-        </div>
-        <div class="field">
-          <label data-i18n="lblWeeksYear">Weeks worked per year</label>
-          <div class="input-row"><input type="number" id="weeksYear" value="48" min="1" step="1"><span class="unit" data-i18n="unitWeeksYear">wks / yr</span></div>
-        </div>
-        <div class="field">
-          <label data-i18n="lblEquipType">Assembly</label>
-          <select class="spec-select" id="equipType">
-            <option value="boxfixem" selected data-i18n="optEquipEM">BOXFIX E-M (Manual)</option>
-            <option value="boxfixplus" data-i18n="optEquipPlus">BOXFIX plus (Assembly Device)</option>
-          </select>
-          <label class="owned"><input type="checkbox" id="equipOwned"> <span data-i18n="lblEquipOwned">Already owned (no purchase cost)</span></label>
-          <img class="equip-img" id="equipImg" alt="">
-          <span class="sub" data-i18n="subEquipTime">Sets the assembly time.</span>
-        </div>
-        <div class="field">
-          <label><span data-i18n="lblEquip">BOXFIX / equipment cost</span> <span class="sub" data-i18n="subOptional">optional</span></label>
-          <div class="input-row"><input type="number" id="equipCost" value="0" min="0" step="any"><span class="unit" data-i18n="unitOneTime">$ one-time</span></div>
-          <span class="sub" data-i18n="subEquipNote">One-time cost.</span>
-        </div>
       </div>
     </div>
 
@@ -750,7 +749,7 @@
         <div id="printSummary"></div>
 
         <div class="cmp-wrap"><table class="cmp" id="cmpTable"></table></div>
-        <div class="table-note" data-i18n="tableNote">Hardware lines include the selected markup. "—" = not applicable.</div>
+        <div class="table-note" data-i18n="tableNote">Hardware lines use estimated shop prices. "—" = not applicable.</div>
 
         <div class="ruler">
           <div class="ruler-label"><span><span data-i18n="rulerTimeLabel">Time per job</span> · <span id="rulerTypeName"></span></span><span id="rulerTradLabel">—</span></div>
@@ -764,6 +763,11 @@
         <div class="takeaway">
           <div class="num" id="savedNum">—<span data-i18n="savedLabel">saved / job</span></div>
           <div class="text" id="takeawayText" data-i18n="takeawayPlaceholder">Enter your numbers to see the comparison.</div>
+        </div>
+        <div class="stmts">
+          <h3 data-i18n="stmtTitle">In plain words</h3>
+          <ul id="stmtList"></ul>
+          <div class="stmt-note" data-i18n="stmtNote">Based on estimated shop costs until the shop's own numbers are entered.</div>
         </div>
         <button type="button" class="print-btn" id="btnPrint" data-i18n="btnPrint">Print / save PDF</button>
       </div>
@@ -830,8 +834,8 @@ function setMode(m){
   $('howtoAnnual').classList.toggle('hidden', m==='simple');
   calc();
 }
-btnSimple.addEventListener('click', ()=>{ setMode('simple'); window.scrollTo({top:0, behavior:'smooth'}); });
-btnEnhanced.addEventListener('click', ()=>{ setMode('enhanced'); $('volumePanel').scrollIntoView({behavior:'smooth', block:'start'}); });
+btnSimple.addEventListener('click', ()=>setMode('simple'));
+btnEnhanced.addEventListener('click', ()=>setMode('enhanced'));
 
 const i18n = {
   title:{en:'MERIVOBOX ROI Calculator', fr:'Calculateur de rentabilité MERIVOBOX'},
@@ -845,7 +849,7 @@ const i18n = {
   lblLabourRate:{en:'Labour rate', fr:'Taux horaire'},
   unitLabourRate:{en:'$ / hr', fr:'$ / h'},
   lblMerivoTime:{en:'MERIVOBOX assembly time', fr:'Temps d\u2019assemblage MERIVOBOX'},
-  placeholderBanner:{en:'Illustrative estimate. Hardware prices include the selected markup; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.', fr:'Estimation illustrative. Les prix de la quincaillerie incluent la majoration choisie; les champs à contour orange pointillé contiennent des coûts d’atelier provisoires — remplacez-les par les chiffres réels de l’atelier avant de partager les résultats.'},
+  placeholderBanner:{en:'Illustrative estimate. Hardware prices are estimates; fields with an orange dashed outline hold placeholder shop costs — replace them with the shop’s actual numbers before sharing results.', fr:'Estimation illustrative. Les prix de la quincaillerie sont des estimations; les champs à contour orange pointillé contiennent des coûts d’atelier provisoires — remplacez-les par les chiffres réels de l’atelier avant de partager les résultats.'},
   len400:{en:'400 mm (16")', fr:'400 mm (16 po)'},
   len450:{en:'450 mm (18")', fr:'450 mm (18 po)'},
   asmWoodRunners:{en:'Wood-drawer runners — TANDEM / MOVENTO ($ / pair, by length mm)', fr:'Coulisses tiroirs en bois — TANDEM / MOVENTO ($ / paire, selon la longueur mm)'},
@@ -856,8 +860,6 @@ const i18n = {
   subMethod:{en:'cutting &amp; taping, all drawer types', fr:'coupe et placage, tous les types de tiroirs'},
   optCNC:{en:'CNC route', fr:'Procédé CNC'},
   optManual:{en:'Manual route (table saw)', fr:'Procédé manuel (scie à table)'},
-  lblMarkup:{en:'Hardware markup', fr:'Majoration de la quincaillerie'},
-  subMarkup:{en:'hardware only — not material or labour', fr:'quincaillerie seulement — pas les matériaux ni la main-d’œuvre'},
   panelWood:{en:'Traditional wood drawers', fr:'Tiroirs en bois traditionnels'},
   lblWidth:{en:'Drawer width', fr:'Largeur du tiroir'},
   lblRunner:{en:'Runner type', fr:'Type de coulisse'},
@@ -882,7 +884,7 @@ const i18n = {
   optPly:{en:'Plywood (pre-finished birch)', fr:'Contreplaqué (bouleau préfini)'},
   specNote:{en:'Height and length also set the wood drawers’ height and depth in the comparison. Colour is visual only — it just selects the matching panel.', fr:'La hauteur et la longueur déterminent aussi la hauteur et la profondeur des tiroirs en bois dans la comparaison. La couleur est visuelle seulement — elle sert à choisir le panneau assorti.'},
   panelCosts:{en:'Shop costs &amp; prices', fr:'Coûts de l’atelier et prix'},
-  subCostsNote:{en:'Shop costs are placeholders — overwrite with the shop’s own numbers. Hardware prices already include the selected markup.', fr:'Les coûts d’atelier sont provisoires — remplacez-les par les chiffres de l’atelier. Les prix de la quincaillerie incluent déjà la majoration choisie.'},
+  subCostsNote:{en:'Shop costs are placeholders — overwrite with the shop’s own numbers.', fr:'Les coûts d’atelier sont provisoires — remplacez-les par les chiffres de l’atelier.'},
   detShop:{en:'Shop costs (wood drawers &amp; panels)', fr:'Coûts de l’atelier (tiroirs en bois et panneaux)'},
   asmPanels:{en:'Panel / wood price', fr:'Prix des panneaux / du bois'},
   asmCutting:{en:'Cutting', fr:'Coupe'},
@@ -930,7 +932,7 @@ const i18n = {
   rFixings:{en:'Front &amp; back fixing', fr:'Fixations avant et arrière'},
   rTotal:{en:'Total', fr:'Total'},
   rSave:{en:'MERIVOBOX saves', fr:'Économie MERIVOBOX'},
-  tableNote:{en:'Hardware lines include the selected markup. "—" = not applicable. Dovetail marked "est." = melamine box × preliminary factor.', fr:'Les lignes de quincaillerie incluent la majoration choisie. « — » = sans objet. Queue d’aronde « est. » = boîte en mélamine × facteur préliminaire.'},
+  tableNote:{en:'Hardware lines use estimated shop prices. "—" = not applicable. Dovetail marked "est." = melamine box × preliminary factor.', fr:'Les lignes de quincaillerie utilisent des prix d’atelier estimés. « — » = sans objet. Queue d’aronde « est. » = boîte en mélamine × facteur préliminaire.'},
   btnPrint:{en:'Print / save PDF', fr:'Imprimer / enregistrer en PDF'},
   subPrelim:{en:'preliminary estimate', fr:'estimation préliminaire'},
   statWeeklyMat:{en:'Weekly cost difference outside labour', fr:'Écart hebdo. des coûts hors main-d’œuvre'},
@@ -943,13 +945,15 @@ const i18n = {
   subEquipTime:{en:'Sets a starting MERIVOBOX assembly time for both views. You can change it.', fr:'Détermine un temps d’assemblage MERIVOBOX de départ pour les deux vues. Vous pouvez le modifier.'},
   subMerivoTime:{en:'Starting value from the Assembly choice in the Annual view. Change it to match the shop.', fr:'Valeur de départ issue du choix d’assemblage dans la vue annuelle. Modifiez-la selon l’atelier.'},
   howSummaryJob:{en:'How to read this — Per job', fr:'Comment lire ceci — Par projet'},
-  howBodyJob:{en:'<p><strong>What you’re looking at:</strong> what it costs to build one job’s drawers four ways, side by side: melamine, plywood, dovetail and MERIVOBOX.</p><p><strong>How to use it:</strong></p><ol><li>Enter the number of drawers in the job and the shop’s labour rate.</li><li>Pick the drawer the shop builds today. Its column is highlighted.</li><li>Pick the MERIVOBOX height, length and colour.</li><li>Read the green MERIVOBOX column, the “MERIVOBOX saves” row and the headline.</li></ol><p><strong>What’s counted:</strong> wood, cutting, edge taping, glue, assembly labour and hardware (runners, locking devices, steel sides, fixings). The hardware markup applies to hardware only, not to wood or labour.</p><p><strong>Good to know:</strong> fields with an orange dashed outline are estimates until the shop’s own costs are entered.</p>', fr:'<p><strong>Ce que vous voyez :</strong> le coût de fabrication des tiroirs d’un projet selon quatre méthodes, côte à côte : mélamine, contreplaqué, queue d’aronde et MERIVOBOX.</p><p><strong>Comment l’utiliser :</strong></p><ol><li>Entrez le nombre de tiroirs du projet et le taux horaire de l’atelier.</li><li>Choisissez le tiroir que l’atelier fabrique aujourd’hui. Sa colonne est surlignée.</li><li>Choisissez la hauteur, la longueur et la couleur du MERIVOBOX.</li><li>Lisez la colonne verte MERIVOBOX, la ligne « Économie MERIVOBOX » et le résumé.</li></ol><p><strong>Ce qui est compté :</strong> bois, coupe, placage de chant, colle, main-d’œuvre d’assemblage et quincaillerie (coulisses, dispositifs de verrouillage, côtés en acier, fixations). La majoration s’applique à la quincaillerie seulement, pas au bois ni à la main-d’œuvre.</p><p><strong>Bon à savoir :</strong> les champs à contour orange pointillé sont des estimations tant que les coûts de l’atelier ne sont pas saisis.</p>'},
+  howBodyJob:{en:'<p><strong>What you’re looking at:</strong> what it costs to build one job’s drawers four ways, side by side: melamine, plywood, dovetail and MERIVOBOX.</p><p><strong>How to use it:</strong></p><ol><li>Enter the number of drawers in the job and the shop’s labour rate.</li><li>Pick the drawer the shop builds today. Its column is highlighted.</li><li>Pick the MERIVOBOX height, length and colour.</li><li>Read the green MERIVOBOX column, the “MERIVOBOX saves” row and the headline.</li></ol><p><strong>What’s counted:</strong> wood, cutting, edge taping, glue, assembly labour and hardware (runners, locking devices, steel sides, fixings). Hardware prices are estimates of what the shop pays. They are not what the shop charges its own customer.</p><p><strong>Good to know:</strong> fields with an orange dashed outline are estimates until the shop’s own costs are entered.</p>', fr:'<p><strong>Ce que vous voyez :</strong> le coût de fabrication des tiroirs d’un projet selon quatre méthodes, côte à côte : mélamine, contreplaqué, queue d’aronde et MERIVOBOX.</p><p><strong>Comment l’utiliser :</strong></p><ol><li>Entrez le nombre de tiroirs du projet et le taux horaire de l’atelier.</li><li>Choisissez le tiroir que l’atelier fabrique aujourd’hui. Sa colonne est surlignée.</li><li>Choisissez la hauteur, la longueur et la couleur du MERIVOBOX.</li><li>Lisez la colonne verte MERIVOBOX, la ligne « Économie MERIVOBOX » et le résumé.</li></ol><p><strong>Ce qui est compté :</strong> bois, coupe, placage de chant, colle, main-d’œuvre d’assemblage et quincaillerie (coulisses, dispositifs de verrouillage, côtés en acier, fixations). Les prix de la quincaillerie sont des estimations de ce que l’atelier paie. Ce n’est pas ce que l’atelier facture à son propre client.</p><p><strong>Bon à savoir :</strong> les champs à contour orange pointillé sont des estimations tant que les coûts de l’atelier ne sont pas saisis.</p>'},
   howSummaryAnnual:{en:'How to read this — Annual', fr:'Comment lire ceci — Annuel'},
   howBodyAnnual:{en:'<p><strong>What you’re looking at:</strong> the same per-job saving scaled to a year: jobs per week × weeks per year.</p><p><strong>The numbers:</strong></p><ul><li><strong>Weekly labour savings:</strong> time saved on assembly × the labour rate.</li><li><strong>Weekly cost difference outside labour:</strong> materials, cutting, taping, glue and hardware. A positive number means MERIVOBOX costs more here.</li><li><strong>Annual net savings:</strong> labour savings minus that cost difference, × weeks per year.</li><li><strong>Payback period:</strong> the equipment cost ÷ the weekly net savings. It shows “n/a” if there are no savings or no equipment cost.</li></ul><p><strong>Assembly:</strong> choose BOXFIX E-M (manual) or BOXFIX plus (assembly device). The choice sets a starting assembly time per drawer and a rough estimate of the one-time equipment cost. You can change both to match the shop. Tick “already owned” if the shop already has it.</p>', fr:'<p><strong>Ce que vous voyez :</strong> la même économie par projet ramenée à l’année : projets par semaine × semaines par année.</p><p><strong>Les chiffres :</strong></p><ul><li><strong>Économies hebdo. de main-d’œuvre :</strong> temps d’assemblage économisé × le taux horaire.</li><li><strong>Écart hebdo. des coûts hors main-d’œuvre :</strong> matériaux, coupe, placage, colle et quincaillerie. Un chiffre positif signifie que MERIVOBOX coûte plus cher ici.</li><li><strong>Économies nettes annuelles :</strong> économies de main-d’œuvre moins cet écart, × semaines par année.</li><li><strong>Période de récupération :</strong> coût de l’équipement ÷ économies nettes hebdomadaires. Affiche « s.o. » s’il n’y a pas d’économies ou pas de coût d’équipement.</li></ul><p><strong>Assemblage :</strong> choisissez BOXFIX E-M (manuel) ou BOXFIX plus (dispositif d’assemblage). Ce choix détermine un temps d’assemblage de départ par tiroir et une estimation approximative du coût unique de l’équipement. Vous pouvez modifier les deux selon l’atelier. Cochez « déjà possédé » si l’atelier l’a déjà.</p>'},
   hintPerJob:{en:'Size of the job and what the shop’s labour costs.', fr:'Taille du projet et coût de la main-d’œuvre de l’atelier.'},
   hintWood:{en:'The shop’s current way of building: width, runner, wood type.', fr:'La méthode actuelle de l’atelier : largeur, coulisse, type de bois.'},
   hintSpec:{en:'Pick the height, length and colour. The photo and hardware prices follow.', fr:'Choisissez la hauteur, la longueur et la couleur. La photo et les prix de la quincaillerie suivent.'},
   subCurType:{en:'The column the savings are measured against.', fr:'La colonne à laquelle les économies sont comparées.'},
+  stmtTitle:{en:'In plain words', fr:'En mots simples'},
+  stmtNote:{en:'Based on estimated shop costs until the shop’s own numbers are entered.', fr:'Basé sur des coûts d’atelier estimés, en attendant les chiffres propres à l’atelier.'},
   panelSpec:{en:'MERIVOBOX specification', fr:'Spécification MERIVOBOX'},
   lblHeight:{en:'Drawer side height', fr:'Hauteur du côté de tiroir'},
   lblLength:{en:'Nominal length', fr:'Longueur nominale'},
@@ -1052,8 +1056,8 @@ const COLS = ['mel','ply','dv','mvx'];
 const COST_ROWS = ['material','cutting','taping','finishing','glue','labour','runners','locking','sides','fixings'];
 const ROWDEFS = [['time','rTime'],['material','rMaterial'],['cutting','rCutting'],['taping','rTaping'],['finishing','rFinishing'],['glue','rGlue'],['labour','rLabour'],['runners','rRunners'],['locking','rLocking'],['sides','rSides'],['fixings','rFixings'],['total','rTotal'],['save','rSave']];
 
-/* ---- hardware prices by markup option (CAD per drawer, markup already included) ---- */
-const HWM = {"0.15":{"sides":{"N":{"400":22.2792,"450":22.543,"500":22.7898,"550":24.8577},"M":{"400":20.2964,"450":20.5261,"500":20.7729,"550":22.6451},"K":{"400":26.347,"450":26.5767,"500":26.8065,"550":28.6702},"E":{"400":36.4568,"450":36.9164,"500":37.3844,"550":40.1927}},"runner":{"N":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706},"M":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706},"K":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706},"E":{"400":21.3856,"450":21.6835,"500":22.0069,"550":23.8706}},"fix":{"N":{"400":2.2296,"450":2.2296,"500":2.2296,"550":2.2296},"M":{"400":2.1275,"450":2.1275,"500":2.1275,"550":2.1275},"K":{"400":2.3658,"450":2.3658,"500":2.3658,"550":2.3658},"E":{"400":4.1954,"450":4.1954,"500":4.1954,"550":4.1954}},"rn":{"TANDEM":{"400":22.2451,"450":22.526,"500":22.8238,"550":23.8961},"MOVENTO":{"400":26.2023,"450":26.4831,"500":26.798,"550":28.3723}},"lock":{"MOVENTO":2.9785,"TANDEM":1.6509}},"0.25":{"sides":{"N":{"400":24.2165,"450":24.5032,"500":24.7715,"550":27.0192},"M":{"400":22.0613,"450":22.311,"500":22.5793,"550":24.6143},"K":{"400":28.638,"450":28.8877,"500":29.1375,"550":31.1632},"E":{"400":39.627,"450":40.1265,"500":40.6352,"550":43.6878}},"runner":{"N":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463},"M":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463},"K":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463},"E":{"400":23.2452,"450":23.569,"500":23.9205,"550":25.9463}},"fix":{"N":{"400":2.4235,"450":2.4235,"500":2.4235,"550":2.4235},"M":{"400":2.3125,"450":2.3125,"500":2.3125,"550":2.3125},"K":{"400":2.5715,"450":2.5715,"500":2.5715,"550":2.5715},"E":{"400":4.5602,"450":4.5602,"500":4.5602,"550":4.5602}},"rn":{"TANDEM":{"400":24.1795,"450":24.4848,"500":24.8085,"550":25.974},"MOVENTO":{"400":28.4808,"450":28.786,"500":29.1283,"550":30.8395}},"lock":{"MOVENTO":3.2375,"TANDEM":1.7945}},"0.35":{"sides":{"N":{"400":26.1538,"450":26.4635,"500":26.7532,"550":29.1808},"M":{"400":23.8262,"450":24.0959,"500":24.3856,"550":26.5834},"K":{"400":30.929,"450":31.1988,"500":31.4685,"550":33.6563},"E":{"400":42.7972,"450":43.3366,"500":43.8861,"550":47.1828}},"runner":{"N":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022},"M":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022},"K":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022},"E":{"400":25.1049,"450":25.4545,"500":25.8341,"550":28.022}},"fix":{"N":{"400":2.6174,"450":2.6174,"500":2.6174,"550":2.6174},"M":{"400":2.4975,"450":2.4975,"500":2.4975,"550":2.4975},"K":{"400":2.7772,"450":2.7772,"500":2.7772,"550":2.7772},"E":{"400":4.9251,"450":4.9251,"500":4.9251,"550":4.9251}},"rn":{"TANDEM":{"400":26.1139,"450":26.4435,"500":26.7932,"550":28.0519},"MOVENTO":{"400":30.7592,"450":31.0889,"500":31.4585,"550":33.3067}},"lock":{"MOVENTO":3.4965,"TANDEM":1.9381}}};
+/* ---- hardware prices (CAD per drawer, estimated shop price) ---- */
+const HW = {"sides":{"N":{"400":25.1852,"450":25.4833,"500":25.7624,"550":28.1},"M":{"400":22.9438,"450":23.2034,"500":23.4825,"550":25.5989},"K":{"400":29.7835,"450":30.0432,"500":30.303,"550":32.4097},"E":{"400":41.2121,"450":41.7316,"500":42.2606,"550":45.4353}},"runner":{"N":{"400":24.175,"450":24.5118,"500":24.8773,"550":26.9842},"M":{"400":24.175,"450":24.5118,"500":24.8773,"550":26.9842},"K":{"400":24.175,"450":24.5118,"500":24.8773,"550":26.9842},"E":{"400":24.175,"450":24.5118,"500":24.8773,"550":26.9842}},"fix":{"N":{"400":2.5204,"450":2.5204,"500":2.5204,"550":2.5204},"M":{"400":2.405,"450":2.405,"500":2.405,"550":2.405},"K":{"400":2.6744,"450":2.6744,"500":2.6744,"550":2.6744},"E":{"400":4.7426,"450":4.7426,"500":4.7426,"550":4.7426}},"rn":{"TANDEM":{"400":25.1467,"450":25.4642,"500":25.8008,"550":27.013},"MOVENTO":{"400":29.62,"450":29.9374,"500":30.2934,"550":32.0731}},"lock":{"MOVENTO":3.367,"TANDEM":1.8663}};
 const r2 = x => Math.round(x*100)/100;
 
 const SHOP = [
@@ -1089,7 +1093,6 @@ const SHOP = [
 ];
 
 let spec = { height:'M', length:'500', colour:'silkwhite' };
-let markup = 0.25;
 const num = id => parseFloat($(id).value) || 0;
 
 /* ---- builders ---- */
@@ -1165,13 +1168,6 @@ swatches.forEach(sw=>{
 });
 document.addEventListener('change', e=>{ if(e.target && e.target.id === 'dvMode') calc(); });
 
-document.querySelectorAll('#markupSeg button').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    markup = parseFloat(b.getAttribute('data-markup'));
-    document.querySelectorAll('#markupSeg button').forEach(x=>x.classList.toggle('active', x===b));
-    calc();
-  });
-});
 document.addEventListener('input', e=>{
   const t = e.target;
   if(t.matches && t.matches('input[type="number"]')) calc();
@@ -1184,7 +1180,7 @@ $('btnPrint').addEventListener('click', ()=>window.print());
    MERIVOBOX: 2 wood pieces (back, bottom), 1 long edge taped (back, 1 x width); no locking devices;
    hardware = runner + steel sides + front/back fixing.
    Labour = assembly minutes x labour rate only (cutting and taping are costs, not labour).
-   Markup applies to hardware only. Wood height/depth follow the selected MERIVOBOX height/length.
+   Wood height/depth follow the selected MERIVOBOX height/length.
    Dovetail "preliminary" mode = melamine box x factor (all non-hardware lines). */
 function calc(){
   const drawers = num('drawers');
@@ -1195,7 +1191,7 @@ function calc(){
   const runner = $('runnerType').value;
   const dvPrelim = $('dvMode').value === 'prelim';
   const dvF = num('dvFactor');
-  const hwTab = HWM[markup.toFixed(2)];
+  const hwTab = HW;
 
   const W = widthIn * 25.4, D = parseFloat(spec.length), H = HEIGHT_MM[spec.height];
   const areaWood = (2*D*H + 2*W*H + W*D) / SQMM_PER_SQFT;
@@ -1293,12 +1289,43 @@ function calc(){
       : `On these inputs, MERIVOBOX costs roughly <strong>${fmt$(-saved)}</strong> more than a ${curName} drawer on a <strong>${drawers}-drawer job</strong>, while saving <strong>${timeSavedStr} hours</strong> of labour time.`;
   }
 
+
+  // plain-language statements, per drawer vs the shop's current drawer
+  const hwOf = x => (x.runners||0)+(x.locking||0)+(x.sides||0)+(x.fixings||0);
+  const nonHw = x => x.total - x.labour - hwOf(x);
+  const dMin = cx.min - mvx.min;
+  const dLab = cx.labour - mvx.labour;
+  const dWood = nonHw(cx) - nonHw(mvx);
+  const dHw = hwOf(mvx) - hwOf(cx);
+  const dNet = cx.total - mvx.total;
+  const f2 = n => { const a=Math.abs(n); return lang==='fr' ? a.toLocaleString('fr-CA',{minimumFractionDigits:2,maximumFractionDigits:2})+' $' : '$'+a.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+  const fm = n => Math.abs(n).toLocaleString(localeFor(),{maximumFractionDigits:1});
+  const B = s => '<strong>'+s+'</strong>';
+  const fr = lang === 'fr';
+  const stmts = [];
+  stmts.push(fr
+    ? (dMin>=0 ? `L’assemblage prend ${B(fm(dMin)+' min de moins')} par tiroir (${fm(mvx.min)} contre ${fm(cx.min)} min), soit ${B(f2(dLab))} de main-d’œuvre à ${fmt$(rate)}/h.`
+                : `L’assemblage prend ${B(fm(dMin)+' min de plus')} par tiroir (${fm(mvx.min)} contre ${fm(cx.min)} min), soit ${B(f2(dLab))} de main-d’œuvre en plus à ${fmt$(rate)}/h.`)
+    : (dMin>=0 ? `Assembly takes ${B(fm(dMin)+' min less')} per drawer (${fm(mvx.min)} vs ${fm(cx.min)} min), worth ${B(f2(dLab))} in labour at ${fmt$(rate)}/hr.`
+                : `Assembly takes ${B(fm(dMin)+' min more')} per drawer (${fm(mvx.min)} vs ${fm(cx.min)} min), adding ${B(f2(dLab))} in labour at ${fmt$(rate)}/hr.`));
+  stmts.push(fr
+    ? `Bois, coupe, placage de chant et colle : ${B(f2(dWood)+(dWood>=0?' de moins':' de plus'))} par tiroir.`
+    : `Wood, cutting, taping and glue: ${B(f2(dWood)+(dWood>=0?' less':' more'))} per drawer.`);
+  stmts.push(fr
+    ? `Quincaillerie : ${B(f2(dHw)+(dHw>=0?' de plus':' de moins'))} par tiroir.`
+    : `Hardware: ${B(f2(dHw)+(dHw>=0?' more':' less'))} per drawer.`);
+  stmts.push(fr
+    ? (dNet>=0 ? `Résultat net : MERIVOBOX économise ${B(f2(dNet))} par tiroir par rapport au tiroir en ${curName}, soit ${B(fmt$(saved))} pour ce projet de ${drawers} tiroirs.`
+                : `Résultat net : MERIVOBOX coûte ${B(f2(dNet))} de plus par tiroir que le tiroir en ${curName}, soit ${B(fmt$(-saved))} de plus pour ce projet de ${drawers} tiroirs.`)
+    : (dNet>=0 ? `Net result: MERIVOBOX saves ${B(f2(dNet))} per drawer vs a ${curName} drawer, or ${B(fmt$(saved))} on this ${drawers}-drawer job.`
+                : `Net result: MERIVOBOX costs ${B(f2(dNet))} more per drawer than a ${curName} drawer, or ${B(fmt$(-saved))} more on this ${drawers}-drawer job.`));
+
   // print summary line
   const methodName = i18n[method === 'cnc' ? 'optCNC' : 'optManual'][lang];
   $('printSummary').textContent = [
     `${drawers} ${i18n.unitDrawers[lang]}`, `${widthIn}"`,
     `${i18n.lblLabourRate[lang]} ${fmt$(rate)}/${lang === 'fr' ? 'h' : 'hr'}`,
-    methodName, `${i18n.lblMarkup[lang]} +${Math.round(markup*100)}%`, runner
+    methodName, runner
   ].join(' · ');
 
   if(mode === 'enhanced'){
@@ -1324,10 +1351,23 @@ function calc(){
     } else {
       $('payback').textContent = lang === 'fr' ? 's.o.' : 'n/a';
     }
+
+    const jobsYr = jobsWeek * weeksYear;
+    const jy = jobsYr.toLocaleString(localeFor(),{maximumFractionDigits:1});
+    stmts.push(fr
+      ? (annualNet>=0 ? `Sur ${B(jy+' projets par année')} : environ ${B(fmt$(annualNet))} d’économies nettes par année.` : `Sur ${B(jy+' projets par année')} : environ ${B(fmt$(-annualNet))} de coûts nets en plus par année.`)
+      : (annualNet>=0 ? `Over ${B(jy+' jobs a year')}: about ${B(fmt$(annualNet))} net savings per year.` : `Over ${B(jy+' jobs a year')}: about ${B(fmt$(-annualNet))} extra net cost per year.`));
+    if(equipCost > 0){
+      stmts.push(weeklyNet > 0
+        ? (fr ? `L’équipement (${B(fmt$(equipCost))}) est récupéré en environ ${B((equipCost/weeklyNet).toLocaleString(localeFor(),{maximumFractionDigits:1})+' semaines')}.`
+              : `The equipment (${B(fmt$(equipCost))}) pays for itself in about ${B((equipCost/weeklyNet).toLocaleString(localeFor(),{maximumFractionDigits:1})+' weeks')}.`)
+        : (fr ? `Avec ces données, l’équipement (${B(fmt$(equipCost))}) n’est pas récupéré.` : `On these inputs the equipment (${B(fmt$(equipCost))}) does not pay for itself.`));
+    }
   }
+  $('stmtList').innerHTML = stmts.map(s=>'<li>'+s+'</li>').join('');
 }
 
-/* ---- assembly equipment: one-time cost (markup included) and assembly time ---- */
+/* ---- assembly equipment: one-time cost and assembly time ---- */
 const EQUIP = {
   boxfixem:   { price:199.75,               min:2,   img:'Images/boxfix-em.jpg.jpg' },
   boxfixplus: { price:9128.00,              min:0.5, img:'Images/boxfix-plus.jpg.jpg' }
