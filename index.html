@@ -595,6 +595,9 @@
   .chip{display:inline-block;margin-bottom:6px;padding:5px 9px;background:#F6F3EC;border:1px solid var(--line);border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;}
   #detailPanel{margin-top:8px;}
   @media print{ .enter-btn,.edit-btn,.conf-bar{display:none !important;} }
+
+  #printFoot{display:none;}
+  @media print{ .banner{display:none !important;} #printFoot{display:block;margin-top:14px;padding-top:8px;border-top:1px solid #999;font-size:11px;color:#444;} }
 </style>
 </head>
 <body>
@@ -868,6 +871,7 @@
     </p>
   </div>
 
+  <div id="printFoot"></div>
   <footer data-i18n="footerText">
     Estimates only. Figures are based on the numbers entered above and Blum's stated MERIVOBOX assembly benchmark;
     actual results vary by shop, product mix, and skill level. Use to illustrate potential savings, not as a guaranteed quote.
@@ -1066,6 +1070,8 @@ const i18n = {
   estTagUnconf:{en:'ESTIMATE · {n} of {t} shop numbers confirmed', fr:'ESTIMATION · {n} de {t} chiffres de l’atelier confirmés'},
   estTagAccepted:{en:'ESTIMATE · built on accepted estimates', fr:'ESTIMATION · basée sur des estimations acceptées'},
   estTagOwn:{en:'BASED ON YOUR NUMBERS', fr:'BASÉ SUR VOS CHIFFRES'},
+  printFootEst:{en:'Estimate. Based on placeholder shop costs and estimated hardware prices.', fr:'Estimation. Basée sur des coûts d’atelier provisoires et des prix de quincaillerie estimés.'},
+  printFootOwn:{en:'Based on shop-supplied numbers. Hardware prices are estimates.', fr:'Basée sur les chiffres fournis par l’atelier. Les prix de quincaillerie sont des estimations.'},
   panelSpec:{en:'MERIVOBOX specification', fr:'Spécification MERIVOBOX'},
   lblHeight:{en:'Drawer side height', fr:'Hauteur du côté de tiroir'},
   lblLength:{en:'Nominal length', fr:'Longueur nominale'},
@@ -1820,11 +1826,19 @@ function attachConfirm(id){
   const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'enter-btn'; btn.setAttribute('data-i18n','btnEnter'); btn.textContent = 'Enter ↵'; btn.dataset.enter = id;
   frow.appendChild(btn);
   const line = document.createElement('div'); line.className = 'conf-line'; line.id = 'cl_' + id; field.appendChild(line);
-  btn.addEventListener('click', ()=>{ confirmed[id] = 'own'; calc(); });
-  input.addEventListener('keydown', e=>{
-    if(e.key === 'Enter'){ e.preventDefault(); confirmed[id] = 'own'; calc();
-      const nxt = confIds().find(i=> !confirmed[i]); if(nxt) $(nxt).focus(); }
-  });
+  const confirmHere = (moveOn)=>{
+    const y = window.scrollY, ids = confIds(), pos = ids.indexOf(id);
+    confirmed[id] = 'own'; calc();
+    let nxt = null;
+    if(moveOn){ nxt = ids.slice(pos + 1).find(k=> !confirmed[k]) || null; }
+    if(nxt){ const el = $(nxt); el.focus({preventScroll:true});
+      const r = el.getBoundingClientRect();
+      if(r.top < 80 || r.bottom > window.innerHeight - 40) window.scrollTo(0, y + r.top - window.innerHeight/3);
+      else window.scrollTo(0, y);
+    } else { if(document.activeElement && document.activeElement.blur) document.activeElement.blur(); window.scrollTo(0, y); }
+  };
+  btn.addEventListener('click', ()=> confirmHere(false));
+  input.addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); confirmHere(true); } });
 }
 function updateConfUI(){
   const ids = confIds();
@@ -1841,10 +1855,11 @@ function updateConfUI(){
   const n = ids.filter(i=> confirmed[i]).length, t = ids.length;
   const allOwn = ids.every(i=> confirmed[i] === 'own');
   $('confProg').textContent = i18n.confProg[lang].replace('{n}', n).replace('{t}', t);
-  const tag = $('estTag');
+  const tag = $('estTag'), pf = $('printFoot');
   if(allOwn){ tag.className = 'est-tag own'; tag.textContent = i18n.estTagOwn[lang]; }
   else if(n === t){ tag.className = 'est-tag est'; tag.textContent = i18n.estTagAccepted[lang]; }
   else { tag.className = 'est-tag est'; tag.textContent = i18n.estTagUnconf[lang].replace('{n}', n).replace('{t}', t); }
+  pf.textContent = i18n[allOwn ? 'printFootOwn' : 'printFootEst'][lang];
 }
 document.addEventListener('click', e=>{
   const ed = e.target.closest && e.target.closest('[data-edit]');
