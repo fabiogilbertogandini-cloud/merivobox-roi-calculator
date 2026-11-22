@@ -528,6 +528,54 @@
   .stmts li{margin-bottom:5px;}
   .stmt-note{margin-top:8px;font-size:12px;color:#8a5a00;border-left:3px solid #E08A00;padding-left:8px;}
   @media print{ #volumePanel{display:none !important;} }
+
+  .bank-card{border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px;background:#fff;}
+  .bank-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;}
+  .bank-head .share{display:flex;align-items:center;gap:4px;margin-left:auto;}
+  .bank-head .share input{width:62px;padding:6px;font-size:13px;}
+  .pos-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .pos-n{width:18px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#777;}
+  .pos-row select{flex:1;}
+  .mini-btn{border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;font-family:inherit;}
+  .mini-btn.wide{margin-top:10px;width:100%;}
+  .sk{margin-top:12px;}
+  .sk svg text{font-family:'Archivo',sans-serif;}
+  .sk-total{margin-top:6px;font-size:13.5px;}
+  .sk-note{font-size:11.5px;color:#777;margin-top:4px;}
+  .sub.warn{color:#8a5a00;margin-top:8px;}
+  @media print{ #bankPanel{display:none !important;} }
+  .bank-card > .sub{display:block;font-size:12px;color:#777;margin-top:2px;}
+
+  .bank-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;}
+  .bank-opts label{display:block;}
+  .bank-opts .sub{display:block;margin-bottom:3px;}
+  .x2{display:flex;align-items:center;gap:3px;font-size:12.5px;white-space:nowrap;}
+  @media(max-width:520px){ .bank-opts{grid-template-columns:1fr;} }
+  .bank-opts .sub{font-size:12px;color:#777;font-weight:400;}
+
+  .hcol{display:none !important;}
+  .type-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+  .type-row select{flex:1 1 110px;min-width:0;}
+  .type-row .share{display:flex;align-items:center;gap:3px;}
+  .type-row .share input{width:56px;padding:6px;font-size:13px;}
+  .star{border:1.5px solid var(--line);background:#fff;color:#bbb;border-radius:6px;width:34px;height:36px;font-size:18px;cursor:pointer;}
+  .star.on{color:#C6491F;border-color:#C6491F;background:#FFF3EC;}
+  .stmt-sum{font-size:14.5px;line-height:1.5;margin-bottom:10px;padding:8px 10px;background:#F6F3EC;border-radius:6px;}
+  .tdet{border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:#fff;}
+  .tdet summary{cursor:pointer;padding:10px 12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px;list-style:none;}
+  .tdet summary::-webkit-details-marker{display:none;}
+  .tdet summary::before{content:'▸';margin-right:6px;}
+  .tdet[open] summary::before{content:'▾';}
+  .tdet summary .tname{font-weight:700;flex:1 1 auto;}
+  .tdet summary .tsave{font-weight:700;}
+  .tsave.pos{color:#2F6F4F;} .tsave.neg{color:#C6491F;}
+  .tmain{color:#C6491F;font-size:12px;}
+  .tdet ul{margin:0;padding:0 14px 10px 30px;font-size:14px;line-height:1.55;}
+  .tdet li{margin-bottom:4px;}
+  #stmtAnnual{margin:8px 0 0;padding-left:18px;font-size:14.5px;line-height:1.55;}
+  #stmtAnnual:empty{display:none;}
+  .type-row select{flex:1 1 90px;}
+  .type-row .share{margin-left:auto;}
 </style>
 </head>
 <body>
@@ -604,13 +652,10 @@
           <div class="input-row"><input type="number" id="labourRate" value="100" min="0" step="1"><span class="unit" data-i18n="unitLabourRate">$ / hr</span></div>
         </div>
         <div class="field">
-          <label data-i18n="lblCurType">Shop's current drawer</label>
-          <select class="spec-select" id="curType">
-            <option value="melamine" selected data-i18n="optMelamine">Melamine</option>
-            <option value="plywood" data-i18n="optPlywood">Plywood</option>
-            <option value="dovetail" data-i18n="optDovetail">Dovetail</option>
-          </select>
-          <span class="sub" data-i18n="subCurType">The column the savings are measured against.</span>
+          <label><span data-i18n="lblTypes">Shop's drawer types</span> <span class="sub" data-i18n="subTypes">★ = most-sold type</span></label>
+          <div id="typeList"></div>
+          <button type="button" class="mini-btn wide" id="addType" data-i18n="btnAddType">+ Add drawer type</button>
+          <div class="sub warn" id="typeShareNote"></div>
         </div>
         <div class="field">
           <label><span data-i18n="lblMethod">Production method</span> <span class="sub" data-i18n="subMethod">cutting &amp; taping, all drawer types</span></label>
@@ -629,13 +674,6 @@
           <select class="spec-select" id="woodWidth">
             <option value="24" selected>24"</option>
             <option value="18">18"</option>
-          </select>
-        </div>
-        <div class="field">
-          <label data-i18n="lblRunner">Runner type</label>
-          <select class="spec-select" id="runnerType">
-            <option value="TANDEM" selected>TANDEM</option>
-            <option value="MOVENTO">MOVENTO</option>
           </select>
         </div>
         <div class="field">
@@ -660,27 +698,17 @@
         </div>
       </div>
 
+      <div class="panel" id="bankPanel">
+        <h2 data-i18n="panelBank">Drawer banks</h2>
+        <div class="field"><span class="sub" data-i18n="subBank">Describe the shop's typical drawer bank, top to bottom. Each drawer is costed at its own height. Add more banks if the shop builds several layouts.</span></div>
+        <div id="bankList"></div>
+        <button type="button" class="mini-btn wide" id="addBank" data-i18n="btnAddBank">+ Add bank</button>
+        <div class="sub warn" id="bankShareNote"></div>
+      </div>
+
       <div class="panel" id="specPanel">
         <h2 data-i18n="panelSpec">MERIVOBOX specification</h2>
         <div class="hint" data-i18n="hintSpec">Pick the height, length and colour. The photo and hardware prices follow.</div>
-        <div class="field">
-          <label data-i18n="lblHeight">Drawer side height</label>
-          <select class="spec-select" id="specHeight">
-            <option value="N">N — 68.5 mm</option>
-            <option value="M" selected>M — 91 mm</option>
-            <option value="K">K — 129 mm</option>
-            <option value="E">E — 192 mm</option>
-          </select>
-        </div>
-        <div class="field">
-          <label data-i18n="lblLength">Nominal length</label>
-          <select class="spec-select" id="specLength">
-            <option value="400" data-i18n="len400">400 mm (16")</option>
-            <option value="450" data-i18n="len450">450 mm (18")</option>
-            <option value="500" selected data-i18n="len500">500 mm (20")</option>
-            <option value="550" data-i18n="len550">550 mm (22")</option>
-          </select>
-        </div>
         <div class="field">
           <label data-i18n="lblColour">Colour</label>
           <div class="swatch-row">
@@ -766,7 +794,9 @@
         </div>
         <div class="stmts">
           <h3 data-i18n="stmtTitle">In plain words</h3>
-          <ul id="stmtList"></ul>
+          <div id="stmtSummary" class="stmt-sum"></div>
+          <div id="typeRows"></div>
+          <ul id="stmtAnnual"></ul>
           <div class="stmt-note" data-i18n="stmtNote">Based on estimated shop costs until the shop's own numbers are entered.</div>
         </div>
         <button type="button" class="print-btn" id="btnPrint" data-i18n="btnPrint">Print / save PDF</button>
@@ -882,7 +912,7 @@ const i18n = {
   optMelWhite:{en:'Melamine White · 16 mm', fr:'Mélamine blanc · 16 mm'},
   optMelMaple:{en:'Melamine Maple · 16 mm', fr:'Mélamine érable · 16 mm'},
   optPly:{en:'Plywood (pre-finished birch)', fr:'Contreplaqué (bouleau préfini)'},
-  specNote:{en:'Height and length also set the wood drawers’ height and depth in the comparison. Colour is visual only — it just selects the matching panel.', fr:'La hauteur et la longueur déterminent aussi la hauteur et la profondeur des tiroirs en bois dans la comparaison. La couleur est visuelle seulement — elle sert à choisir le panneau assorti.'},
+  specNote:{en:'Length is set per drawer bank and heights come from the drawer banks above. Colour is visual only — it just selects the matching panel.', fr:'La longueur est définie par banque de tiroirs et les hauteurs viennent des banques de tiroirs ci-dessus. La couleur est visuelle seulement — elle sélectionne simplement le panneau assorti.'},
   panelCosts:{en:'Shop costs &amp; prices', fr:'Coûts de l’atelier et prix'},
   subCostsNote:{en:'Shop costs are placeholders — overwrite with the shop’s own numbers.', fr:'Les coûts d’atelier sont provisoires — remplacez-les par les chiffres de l’atelier.'},
   detShop:{en:'Shop costs (wood drawers &amp; panels)', fr:'Coûts de l’atelier (tiroirs en bois et panneaux)'},
@@ -932,7 +962,7 @@ const i18n = {
   rFixings:{en:'Front &amp; back fixing', fr:'Fixations avant et arrière'},
   rTotal:{en:'Total', fr:'Total'},
   rSave:{en:'MERIVOBOX saves', fr:'Économie MERIVOBOX'},
-  tableNote:{en:'Hardware lines use estimated shop prices. "—" = not applicable. Dovetail marked "est." = melamine box × preliminary factor.', fr:'Les lignes de quincaillerie utilisent des prix d’atelier estimés. « — » = sans objet. Queue d’aronde « est. » = boîte en mélamine × facteur préliminaire.'},
+  tableNote:{en:'Hardware lines use estimated shop prices. "—" = not applicable. Dovetail marked "est." = melamine box × preliminary factor. Panel sizes are approximate; the calculator is meant for cabinet widths of 10–42 in.', fr:'Les lignes de quincaillerie utilisent des prix d’atelier estimés. « — » = sans objet. Queue d’aronde « est. » = boîte en mélamine × facteur préliminaire. Les dimensions des panneaux sont approximatives; le calculateur est conçu pour des largeurs de caisson de 10 à 42 po.'},
   btnPrint:{en:'Print / save PDF', fr:'Imprimer / enregistrer en PDF'},
   subPrelim:{en:'preliminary estimate', fr:'estimation préliminaire'},
   statWeeklyMat:{en:'Weekly cost difference outside labour', fr:'Écart hebdo. des coûts hors main-d’œuvre'},
@@ -945,15 +975,43 @@ const i18n = {
   subEquipTime:{en:'Sets a starting MERIVOBOX assembly time for both views. You can change it.', fr:'Détermine un temps d’assemblage MERIVOBOX de départ pour les deux vues. Vous pouvez le modifier.'},
   subMerivoTime:{en:'Starting value from the Assembly choice in the Annual view. Change it to match the shop.', fr:'Valeur de départ issue du choix d’assemblage dans la vue annuelle. Modifiez-la selon l’atelier.'},
   howSummaryJob:{en:'How to read this — Per job', fr:'Comment lire ceci — Par projet'},
-  howBodyJob:{en:'<p><strong>What you’re looking at:</strong> what it costs to build one job’s drawers four ways, side by side: melamine, plywood, dovetail and MERIVOBOX.</p><p><strong>How to use it:</strong></p><ol><li>Enter the number of drawers in the job and the shop’s labour rate.</li><li>Pick the drawer the shop builds today. Its column is highlighted.</li><li>Pick the MERIVOBOX height, length and colour.</li><li>Read the green MERIVOBOX column, the “MERIVOBOX saves” row and the headline.</li></ol><p><strong>What’s counted:</strong> wood, cutting, edge taping, glue, assembly labour and hardware (runners, locking devices, steel sides, fixings). Hardware prices are estimates of what the shop pays. They are not what the shop charges its own customer.</p><p><strong>Good to know:</strong> fields with an orange dashed outline are estimates until the shop’s own costs are entered.</p>', fr:'<p><strong>Ce que vous voyez :</strong> le coût de fabrication des tiroirs d’un projet selon quatre méthodes, côte à côte : mélamine, contreplaqué, queue d’aronde et MERIVOBOX.</p><p><strong>Comment l’utiliser :</strong></p><ol><li>Entrez le nombre de tiroirs du projet et le taux horaire de l’atelier.</li><li>Choisissez le tiroir que l’atelier fabrique aujourd’hui. Sa colonne est surlignée.</li><li>Choisissez la hauteur, la longueur et la couleur du MERIVOBOX.</li><li>Lisez la colonne verte MERIVOBOX, la ligne « Économie MERIVOBOX » et le résumé.</li></ol><p><strong>Ce qui est compté :</strong> bois, coupe, placage de chant, colle, main-d’œuvre d’assemblage et quincaillerie (coulisses, dispositifs de verrouillage, côtés en acier, fixations). Les prix de la quincaillerie sont des estimations de ce que l’atelier paie. Ce n’est pas ce que l’atelier facture à son propre client.</p><p><strong>Bon à savoir :</strong> les champs à contour orange pointillé sont des estimations tant que les coûts de l’atelier ne sont pas saisis.</p>'},
+  howBodyJob:{en:'<p><strong>What you’re looking at:</strong> what it costs to build one job’s drawers side by side: the drawer types the shop builds, against MERIVOBOX.</p><p><strong>How to use it:</strong></p><ol><li>Enter the number of drawers in the job and the shop’s labour rate.</li><li>Add the drawer types the shop builds (melamine, plywood, dovetail), each with its runner and its share of the drawers. The star marks the most-sold type.</li><li>Describe the shop’s drawer banks, top to bottom, with each drawer’s height and length. Use a layout to start faster.</li><li>Read the green MERIVOBOX column, the “MERIVOBOX saves” row, the headline and the “In plain words” rows. Open a row to see the details for that drawer type.</li></ol><p><strong>What’s counted:</strong> wood, cutting, edge taping, glue, assembly labour and hardware (runners, locking devices, steel sides, fixings). Hardware prices are estimates of what the shop pays. They are not what the shop charges its own customer.</p><p><strong>Good to know:</strong> fields with an orange dashed outline are estimates until the shop’s own costs are entered.</p>', fr:'<p><strong>Ce que vous voyez :</strong> le coût de fabrication des tiroirs d’un projet, côte à côte : les types de tiroirs de l’atelier contre MERIVOBOX.</p><p><strong>Comment l’utiliser :</strong></p><ol><li>Entrez le nombre de tiroirs du projet et le taux horaire de l’atelier.</li><li>Ajoutez les types de tiroirs que l’atelier fabrique (mélamine, contreplaqué, queue d’aronde), chacun avec sa coulisse et sa part des tiroirs. L’étoile indique le type le plus vendu.</li><li>Décrivez les banques de tiroirs de l’atelier, de haut en bas, avec la hauteur et la longueur de chaque tiroir. Une configuration prédéfinie accélère la saisie.</li><li>Lisez la colonne verte MERIVOBOX, la ligne « Économie MERIVOBOX », le résumé et les rangées « En mots simples ». Ouvrez une rangée pour voir le détail de ce type de tiroir.</li></ol><p><strong>Ce qui est compté :</strong> bois, coupe, placage de chant, colle, main-d’œuvre d’assemblage et quincaillerie (coulisses, dispositifs de verrouillage, côtés en acier, fixations). Les prix de la quincaillerie sont des estimations de ce que l’atelier paie. Ce n’est pas ce que l’atelier facture à son propre client.</p><p><strong>Bon à savoir :</strong> les champs à contour orange pointillé sont des estimations tant que les coûts de l’atelier ne sont pas saisis.</p>'},
   howSummaryAnnual:{en:'How to read this — Annual', fr:'Comment lire ceci — Annuel'},
   howBodyAnnual:{en:'<p><strong>What you’re looking at:</strong> the same per-job saving scaled to a year: jobs per week × weeks per year.</p><p><strong>The numbers:</strong></p><ul><li><strong>Weekly labour savings:</strong> time saved on assembly × the labour rate.</li><li><strong>Weekly cost difference outside labour:</strong> materials, cutting, taping, glue and hardware. A positive number means MERIVOBOX costs more here.</li><li><strong>Annual net savings:</strong> labour savings minus that cost difference, × weeks per year.</li><li><strong>Payback period:</strong> the equipment cost ÷ the weekly net savings. It shows “n/a” if there are no savings or no equipment cost.</li></ul><p><strong>Assembly:</strong> choose BOXFIX E-M (manual) or BOXFIX plus (assembly device). The choice sets a starting assembly time per drawer and a rough estimate of the one-time equipment cost. You can change both to match the shop. Tick “already owned” if the shop already has it.</p>', fr:'<p><strong>Ce que vous voyez :</strong> la même économie par projet ramenée à l’année : projets par semaine × semaines par année.</p><p><strong>Les chiffres :</strong></p><ul><li><strong>Économies hebdo. de main-d’œuvre :</strong> temps d’assemblage économisé × le taux horaire.</li><li><strong>Écart hebdo. des coûts hors main-d’œuvre :</strong> matériaux, coupe, placage, colle et quincaillerie. Un chiffre positif signifie que MERIVOBOX coûte plus cher ici.</li><li><strong>Économies nettes annuelles :</strong> économies de main-d’œuvre moins cet écart, × semaines par année.</li><li><strong>Période de récupération :</strong> coût de l’équipement ÷ économies nettes hebdomadaires. Affiche « s.o. » s’il n’y a pas d’économies ou pas de coût d’équipement.</li></ul><p><strong>Assemblage :</strong> choisissez BOXFIX E-M (manuel) ou BOXFIX plus (dispositif d’assemblage). Ce choix détermine un temps d’assemblage de départ par tiroir et une estimation approximative du coût unique de l’équipement. Vous pouvez modifier les deux selon l’atelier. Cochez « déjà possédé » si l’atelier l’a déjà.</p>'},
   hintPerJob:{en:'Size of the job and what the shop’s labour costs.', fr:'Taille du projet et coût de la main-d’œuvre de l’atelier.'},
-  hintWood:{en:'The shop’s current way of building: width, runner, wood type.', fr:'La méthode actuelle de l’atelier : largeur, coulisse, type de bois.'},
+  hintWood:{en:'The shop’s way of building: width, melamine colour and dovetail species. Runners are set per drawer type.', fr:'La méthode de l’atelier : largeur, couleur de mélamine et essence de queue d’aronde. Les coulisses se choisissent par type de tiroir.'},
   hintSpec:{en:'Pick the height, length and colour. The photo and hardware prices follow.', fr:'Choisissez la hauteur, la longueur et la couleur. La photo et les prix de la quincaillerie suivent.'},
   subCurType:{en:'The column the savings are measured against.', fr:'La colonne à laquelle les économies sont comparées.'},
   stmtTitle:{en:'In plain words', fr:'En mots simples'},
-  stmtNote:{en:'Based on estimated shop costs until the shop’s own numbers are entered.', fr:'Basé sur des coûts d’atelier estimés, en attendant les chiffres propres à l’atelier.'},
+  stmtNote:{en:'Based on estimated shop costs until the shop’s own numbers are entered. Per-drawer figures are averages across the drawer banks.', fr:'Basé sur des coûts d’atelier estimés, en attendant les chiffres propres à l’atelier. Les chiffres par tiroir sont des moyennes sur les banques de tiroirs.'},
+  panelBank:{en:'Drawer banks', fr:'Banques de tiroirs'},
+  subBank:{en:'Describe the shop’s typical drawer bank, top to bottom. Each drawer is costed at its own height. Add more banks if the shop builds several layouts.', fr:'Décrivez la banque de tiroirs typique de l’atelier, de haut en bas. Chaque tiroir est calculé selon sa propre hauteur. Ajoutez des banques si l’atelier construit plusieurs configurations.'},
+  lblBank:{en:'Bank', fr:'Banque'},
+  lblTopDown:{en:'Top to bottom', fr:'De haut en bas'},
+  unitShare:{en:'% of drawers', fr:'% des tiroirs'},
+  btnAddDrawer:{en:'+ Add drawer', fr:'+ Ajouter un tiroir'},
+  btnAddBank:{en:'+ Add bank', fr:'+ Ajouter une banque'},
+  skSaves:{en:'saves', fr:'économise'},
+  skCosts:{en:'costs more', fr:'coûte de plus'},
+  skBankSaves:{en:'Per bank, MERIVOBOX saves', fr:'Par banque, MERIVOBOX économise'},
+  skBankCosts:{en:'Per bank, MERIVOBOX costs more by', fr:'Par banque, MERIVOBOX coûte de plus :'},
+  skAria:{en:'Drawer bank sketch', fr:'Schéma de la banque de tiroirs'},
+  skNote:{en:'Illustrative: drawer heights are in proportion to MERIVOBOX side heights, not the final drawer fronts. Savings are per drawer vs the shop’s main drawer.', fr:'À titre indicatif : les hauteurs sont proportionnelles aux hauteurs des côtés MERIVOBOX, et non aux façades finales. Les économies sont par tiroir par rapport au tiroir principal de l’atelier.'},
+  skShareWarn:{en:'The shares add up to {t}%, not 100%. They are scaled to 100% in the calculation.', fr:'Les parts totalisent {t} %, et non 100 %. Elles sont ramenées à 100 % dans le calcul.'},
+  lblLayout:{en:'Start from a layout', fr:'Partir d’une configuration'},
+  lblBankLen:{en:'Drawer length', fr:'Longueur des tiroirs'},
+  skCustom:{en:'Custom', fr:'Personnalisée'},
+  skDrawer:{en:'drawer', fr:'tiroir'},
+  skDrawers:{en:'drawers', fr:'tiroirs'},
+  skFalseShort:{en:'door/false', fr:'porte/faux'},
+  skFalseOpt:{en:'Door / false front', fr:'Porte / faux-devant'},
+  skFalseLabel:{en:'Door / false front — not costed', fr:'Porte / faux-devant — non calculé'},
+  skNoDrawer:{en:'No drawers in this bank.', fr:'Aucun tiroir dans cette banque.'},
+  lblTypes:{en:'Shop’s drawer types', fr:'Types de tiroirs de l’atelier'},
+  subTypes:{en:'★ = most-sold type', fr:'★ = type le plus vendu'},
+  btnAddType:{en:'+ Add drawer type', fr:'+ Ajouter un type de tiroir'},
+  skMainTag:{en:'main', fr:'principal'},
+  skMainTitle:{en:'Most-sold type', fr:'Type le plus vendu'},
   panelSpec:{en:'MERIVOBOX specification', fr:'Spécification MERIVOBOX'},
   lblHeight:{en:'Drawer side height', fr:'Hauteur du côté de tiroir'},
   lblLength:{en:'Nominal length', fr:'Longueur nominale'},
@@ -1038,6 +1096,7 @@ function applyLang(l){
     el.innerHTML = entry[l];
   });
   updatePreview();
+  if(window.__banksReady){ renderBanks(); renderTypes(); }
   calc();
 }
 btnEN.addEventListener('click', ()=>applyLang('en'));
@@ -1092,7 +1151,62 @@ const SHOP = [
   ]}
 ];
 
-let spec = { height:'M', length:'500', colour:'silkwhite' };
+let spec = { colour:'silkwhite' };
+const MAX_POS = 6;
+const LENS = ['400','450','500','550'];
+const H_ORDER = ['N','M','K','E'];
+const MATS = ['melamine','plywood','dovetail'];
+const MAT_COL = { melamine:'mel', plywood:'ply', dovetail:'dv' };
+const MAT_KEY = { melamine:'optMelamine', plywood:'optPlywood', dovetail:'optDovetail' };
+let types = [ { mat:'melamine', runner:'TANDEM', share:100 } ];
+let mainIdx = 0;
+let openTypes = new Set(['melamine']);
+function typeWeights(){
+  const tot = types.reduce((s,t)=> s + (parseFloat(t.share)||0), 0);
+  return types.map(t=> tot > 0 ? (parseFloat(t.share)||0) / tot : 1 / types.length);
+}
+function runnerFor(mat){ const t = types.find(t=> t.mat === mat); return t ? t.runner : 'TANDEM'; }
+const P = p => typeof p === 'string' ? { h:p, n:1 } : p;
+let banks = [ { share:100, len:'500', hs:[{h:'M',n:1},{h:'M',n:1},{h:'E',n:1}] } ];
+function bankDrawers(b){ return b.hs.map(P).reduce((s,p)=> s + (p.h === 'F' ? 0 : p.n), 0); }
+function heightMix(){          // keys are "H|L" (box height | nominal length)
+  const live = banks.filter(b=> bankDrawers(b) > 0);
+  const tot = live.reduce((s,b)=> s + (parseFloat(b.share)||0), 0);
+  const m = {};
+  live.forEach(b=>{
+    const w = tot > 0 ? (parseFloat(b.share)||0) / tot : 1 / live.length;
+    const nd = bankDrawers(b);
+    b.hs.map(P).forEach(p=>{
+      if(p.h === 'F') return;
+      const k = p.h + '|' + (b.len || '500');
+      m[k] = (m[k]||0) + w * p.n / nd;
+    });
+  });
+  if(!Object.keys(m).length) m['M|500'] = 1;
+  return m;
+}
+function heightLabel(){
+  const m = heightMix();
+  const hs = new Set(Object.keys(m).filter(k=> m[k] > 0).map(k=> k.split('|')[0]));
+  return H_ORDER.filter(h=> hs.has(h)).join(' + ') || 'M';
+}
+function lengthLabel(){
+  const m = heightMix();
+  const ls = [...new Set(Object.keys(m).filter(k=> m[k] > 0).map(k=> k.split('|')[1]))].sort();
+  return (ls.join(' / ') || '500') + ' mm';
+}
+function blendData(per, mix){
+  const out = {}, hs = Object.keys(mix);
+  COLS.forEach(c=>{
+    out[c] = {};
+    Object.keys(per[hs[0]][c]).forEach(k=>{
+      const v0 = per[hs[0]][c][k];
+      out[c][k] = v0 === null ? null : hs.reduce((s,h)=> s + mix[h] * per[h][c][k], 0);
+    });
+  });
+  return out;
+}
+const money2 = n => { const a = Math.abs(n); return lang==='fr' ? a.toLocaleString('fr-CA',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' $' : '$' + a.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}); };
 const num = id => parseFloat($(id).value) || 0;
 
 /* ---- builders ---- */
@@ -1132,7 +1246,6 @@ function buildTable(){
 }
 
 /* ---- spec selector ---- */
-const specHeightEl = $('specHeight'), specLengthEl = $('specLength');
 const swatches = document.querySelectorAll('.swatch');
 
 function updatePreview(){
@@ -1143,15 +1256,13 @@ function updatePreview(){
   img.src = COLOUR_IMG[spec.colour];
 
   const colourWord = i18n[COLOUR_LABEL_KEY[spec.colour]][lang];
-  $('previewSpecLabel').textContent = `${spec.height} · ${colourWord}`;
-  $('previewLenBadge').textContent = i18n['len' + spec.length][lang];
+  $('previewSpecLabel').textContent = `${heightLabel()} · ${colourWord}`;
+  $('previewLenBadge').textContent = lengthLabel();
 
   const swatchColours = { silkwhite:'#F1EEE7', indiumgrey:'#6B7178', oriongrey:'#4A4F55' };
   $('previewSwatchBox').style.background = swatchColours[spec.colour];
 }
 
-specHeightEl.addEventListener('change', ()=>{ spec.height = specHeightEl.value; updatePreview(); calc(); });
-specLengthEl.addEventListener('change', ()=>{ spec.length = specLengthEl.value; updatePreview(); calc(); });
 swatches.forEach(sw=>{
   sw.addEventListener('click', ()=>{
     swatches.forEach(s=>s.classList.remove('active'));
@@ -1163,7 +1274,7 @@ swatches.forEach(sw=>{
   });
 });
 
-['curType','method','woodWidth','runnerType','melColour','dvSpecies','mvxPanel'].forEach(id=>{
+['method','woodWidth','melColour','dvSpecies','mvxPanel'].forEach(id=>{
   $(id).addEventListener('change', calc);
 });
 document.addEventListener('change', e=>{ if(e.target && e.target.id === 'dvMode') calc(); });
@@ -1185,42 +1296,41 @@ $('btnPrint').addEventListener('click', ()=>window.print());
 function calc(){
   const drawers = num('drawers');
   const rate = num('labourRate');
-  const cur = $('curType').value;
   const method = $('method').value;
   const widthIn = parseFloat($('woodWidth').value) || 24;
-  const runner = $('runnerType').value;
   const dvPrelim = $('dvMode').value === 'prelim';
   const dvF = num('dvFactor');
   const hwTab = HW;
 
-  const W = widthIn * 25.4, D = parseFloat(spec.length), H = HEIGHT_MM[spec.height];
+  function costsFor(hh, LL){
+  const W = widthIn * 25.4, D = parseFloat(LL), H = HEIGHT_MM[hh];
   const areaWood = (2*D*H + 2*W*H + W*D) / SQMM_PER_SQFT;
   const areaMvx  = (W*H + W*D) / SQMM_PER_SQFT;
   const tapeWood = (2*D + 2*W) / MM_PER_FT;
   const tapeMvx  = W / MM_PER_FT;
   const cutRate  = method === 'cnc' ? num('cutCNC')  : num('cutManual');
   const tapeRate = method === 'cnc' ? num('tapeCNC') : num('tapeManual');
-  const hwRun  = hwTab.rn[runner][spec.length];
-  const hwLock = hwTab.lock[runner];
+  const hwR = m => hwTab.rn[runnerFor(m)][LL];
+  const hwL = m => hwTab.lock[runnerFor(m)];
 
-  const wood = (priceId, assemblyId, taped) => ({
+  const wood = (priceId, assemblyId, taped, m) => ({
     min: num(assemblyId),
     material: areaWood * num(priceId),
     cutting: 5 * cutRate,
     taping: taped ? tapeWood * tapeRate : null,
     finishing: taped ? null : num('finishDv'),
     glue: num('glueWood'),
-    runners: hwRun, locking: hwLock, sides: null, fixings: null
+    runners: hwR(m), locking: hwL(m), sides: null, fixings: null
   });
 
-  const mel = wood('price_' + $('melColour').value, 'woodAssembly', true);
-  const ply = wood('price_ply', 'woodAssembly', true);
+  const mel = wood('price_' + $('melColour').value, 'woodAssembly', true, 'melamine');
+  const ply = wood('price_ply', 'woodAssembly', true, 'plywood');
   const dv = dvPrelim
     ? { min: mel.min*dvF, material: mel.material*dvF, cutting: mel.cutting*dvF, taping: mel.taping*dvF,
-        finishing: null, glue: mel.glue*dvF, runners: hwRun, locking: hwLock, sides: null, fixings: null }
-    : wood('price_' + $('dvSpecies').value, 'dvAssembly', false);
+        finishing: null, glue: mel.glue*dvF, runners: hwR('dovetail'), locking: hwL('dovetail'), sides: null, fixings: null }
+    : wood('price_' + $('dvSpecies').value, 'dvAssembly', false, 'dovetail');
 
-  const hw = kind => hwTab[kind][spec.height][spec.length];
+  const hw = kind => hwTab[kind][hh][LL];
   const mvx = {
     min: num('merivoTime'),
     material: areaMvx * num('price_' + $('mvxPanel').value),
@@ -1237,7 +1347,21 @@ function calc(){
     x.labour = x.min / 60 * rate;
     x.total = COST_ROWS.reduce((s,k)=> s + (x[k] || 0), 0);
   });
+  return data;
+  }
+  const perAll = {};
+  H_ORDER.forEach(hh=>{ LENS.forEach(LL=>{ perAll[hh+'|'+LL] = costsFor(hh, LL); }); });
+  const mix = heightMix();
+  const data = blendData(perAll, mix);
+  const mvx = data.mvx;
 
+  const selCols = new Set(types.map(t=> MAT_COL[t.mat]));
+  const tw = typeWeights();
+  const cur = types[mainIdx].mat;
+  const curKey = MAT_COL[cur];
+  // blended cost of the shop's drawer mix (null counts as 0)
+  const cx = {};
+  Object.keys(data.mvx).forEach(k=>{ cx[k] = types.reduce((s,t,i)=> s + tw[i] * (data[MAT_COL[t.mat]][k] || 0), 0); });
   // table
   COLS.forEach(c=>{
     const x = data[c];
@@ -1255,17 +1379,21 @@ function calc(){
   $('cs_mel').textContent = i18n[MEL_NAME_KEY[$('melColour').value]][lang];
   $('cs_ply').textContent = i18n.nameBirch[lang];
   $('cs_dv').textContent  = dvPrelim ? '× ' + dvF : i18n[DV_NAME_KEY[$('dvSpecies').value]][lang];
-  $('cs_mvx').textContent = `${spec.height} · ${spec.length} mm · ${i18n[COLOUR_LABEL_KEY[spec.colour]][lang]}`;
+  $('cs_mvx').textContent = `${heightLabel()} · ${lengthLabel()} · ${i18n[COLOUR_LABEL_KEY[spec.colour]][lang]}`;
   document.querySelectorAll('[data-col]').forEach(el=>{
     const c = el.getAttribute('data-col');
-    el.classList.toggle('cur', (c === 'mel' && cur === 'melamine') || (c === 'ply' && cur === 'plywood') || (c === 'dv' && cur === 'dovetail'));
+    el.classList.toggle('cur', types.length > 1 && c === curKey);
+    el.classList.toggle('hcol', c !== 'mvx' && !selCols.has(c));
     el.classList.toggle('mvx', c === 'mvx');
   });
 
   // headline vs the shop's current drawer
-  const curKey = { melamine:'mel', plywood:'ply', dovetail:'dv' }[cur];
-  const cx = data[curKey];
-  const curName = { melamine:i18n.optMelamine[lang], plywood:i18n.optPlywood[lang], dovetail:i18n.optDovetail[lang] }[cur].toLowerCase();
+  const multi = types.length > 1;
+  const nameOf = m => i18n[MAT_KEY[m]][lang].toLowerCase();
+  const mixName = types.map((t,i)=> `${Math.round(tw[i]*100)}% ${nameOf(t.mat)}`).join(' / ');
+  const curName = multi ? mixName : nameOf(cur);
+  const fr = lang === 'fr';
+  drawSketches(perAll, curKey);
   const saved = (cx.total - mvx.total) * drawers;
   const tTime = cx.min * drawers / 60;
   const mTime = mvx.min * drawers / 60;
@@ -1281,51 +1409,73 @@ function calc(){
   const timeSavedStr = timeSaved.toLocaleString(localeFor(), {maximumFractionDigits:1});
   if(saved >= 0){
     $('takeawayText').innerHTML = lang === 'fr'
-      ? `Pour un <strong>projet de ${drawers} tiroirs</strong>, passer du tiroir en ${curName} à MERIVOBOX permet d’économiser environ <strong>${fmt$(saved)}</strong> et <strong>${timeSavedStr} heures</strong> (<strong>${fmtPct(reduction)} plus rapide</strong>).`
-      : `Switching from ${curName} to MERIVOBOX on a <strong>${drawers}-drawer job</strong> saves roughly <strong>${fmt$(saved)}</strong> and <strong>${timeSavedStr} hours</strong> (<strong>${fmtPct(reduction)} faster</strong>).`;
+      ? `Pour un <strong>projet de ${drawers} tiroirs</strong>, passer ${multi ? `de la répartition de tiroirs de l’atelier (${curName})` : `du tiroir en ${curName}`} à MERIVOBOX permet d’économiser environ <strong>${fmt$(saved)}</strong> et <strong>${timeSavedStr} heures</strong> (<strong>${fmtPct(reduction)} plus rapide</strong>).`
+      : `Switching from ${multi ? `the shop’s drawer mix (${curName})` : curName} to MERIVOBOX on a <strong>${drawers}-drawer job</strong> saves roughly <strong>${fmt$(saved)}</strong> and <strong>${timeSavedStr} hours</strong> (<strong>${fmtPct(reduction)} faster</strong>).`;
   } else {
     $('takeawayText').innerHTML = lang === 'fr'
-      ? `Avec ces données, MERIVOBOX coûte environ <strong>${fmt$(-saved)}</strong> de plus qu’un tiroir en ${curName} pour un <strong>projet de ${drawers} tiroirs</strong>, tout en économisant <strong>${timeSavedStr} heures</strong> de main-d’œuvre.`
-      : `On these inputs, MERIVOBOX costs roughly <strong>${fmt$(-saved)}</strong> more than a ${curName} drawer on a <strong>${drawers}-drawer job</strong>, while saving <strong>${timeSavedStr} hours</strong> of labour time.`;
+      ? `Avec ces données, MERIVOBOX coûte environ <strong>${fmt$(-saved)}</strong> de plus ${multi ? `que la répartition de tiroirs de l’atelier (${curName})` : `qu’un tiroir en ${curName}`} pour un <strong>projet de ${drawers} tiroirs</strong>, tout en économisant <strong>${timeSavedStr} heures</strong> de main-d’œuvre.`
+      : `On these inputs, MERIVOBOX costs roughly <strong>${fmt$(-saved)}</strong> more than ${multi ? `the shop’s drawer mix (${curName})` : `a ${curName} drawer`} on a <strong>${drawers}-drawer job</strong>, while saving <strong>${timeSavedStr} hours</strong> of labour time.`;
   }
 
 
-  // plain-language statements, per drawer vs the shop's current drawer
+  // plain-language statements: one collapsible row per drawer type
   const hwOf = x => (x.runners||0)+(x.locking||0)+(x.sides||0)+(x.fixings||0);
   const nonHw = x => x.total - x.labour - hwOf(x);
-  const dMin = cx.min - mvx.min;
-  const dLab = cx.labour - mvx.labour;
-  const dWood = nonHw(cx) - nonHw(mvx);
-  const dHw = hwOf(mvx) - hwOf(cx);
-  const dNet = cx.total - mvx.total;
-  const f2 = n => { const a=Math.abs(n); return lang==='fr' ? a.toLocaleString('fr-CA',{minimumFractionDigits:2,maximumFractionDigits:2})+' $' : '$'+a.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+  const f2 = n => { const a=Math.abs(n); return fr ? a.toLocaleString('fr-CA',{minimumFractionDigits:2,maximumFractionDigits:2})+' $' : '$'+a.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2}); };
   const fm = n => Math.abs(n).toLocaleString(localeFor(),{maximumFractionDigits:1});
   const B = s => '<strong>'+s+'</strong>';
-  const fr = lang === 'fr';
+  function typeStmts(x, nm){
+    const dMin = x.min - mvx.min, dLab = x.labour - mvx.labour;
+    const dWood = nonHw(x) - nonHw(mvx), dHw = hwOf(mvx) - hwOf(x), dNet = x.total - mvx.total;
+    const sv = dNet * drawers;
+    return [
+      fr ? (dMin>=0 ? `L’assemblage prend ${B(fm(dMin)+' min de moins')} par tiroir (${fm(mvx.min)} contre ${fm(x.min)} min), soit ${B(f2(dLab))} de main-d’œuvre à ${fmt$(rate)}/h.`
+                     : `L’assemblage prend ${B(fm(dMin)+' min de plus')} par tiroir (${fm(mvx.min)} contre ${fm(x.min)} min), soit ${B(f2(dLab))} de main-d’œuvre en plus à ${fmt$(rate)}/h.`)
+         : (dMin>=0 ? `Assembly takes ${B(fm(dMin)+' min less')} per drawer (${fm(mvx.min)} vs ${fm(x.min)} min), worth ${B(f2(dLab))} in labour at ${fmt$(rate)}/hr.`
+                     : `Assembly takes ${B(fm(dMin)+' min more')} per drawer (${fm(mvx.min)} vs ${fm(x.min)} min), adding ${B(f2(dLab))} in labour at ${fmt$(rate)}/hr.`),
+      fr ? `Bois, coupe, placage de chant et colle : ${B(f2(dWood)+(dWood>=0?' de moins':' de plus'))} par tiroir.`
+         : `Wood, cutting, taping and glue: ${B(f2(dWood)+(dWood>=0?' less':' more'))} per drawer.`,
+      fr ? `Quincaillerie : ${B(f2(dHw)+(dHw>=0?' de plus':' de moins'))} par tiroir.`
+         : `Hardware: ${B(f2(dHw)+(dHw>=0?' more':' less'))} per drawer.`,
+      fr ? (dNet>=0 ? `Résultat net : MERIVOBOX économise ${B(f2(dNet))} par tiroir par rapport au tiroir en ${nm}, soit ${B(fmt$(sv))} pour ce projet de ${drawers} tiroirs.`
+                    : `Résultat net : MERIVOBOX coûte ${B(f2(dNet))} de plus par tiroir que le tiroir en ${nm}, soit ${B(fmt$(-sv))} de plus pour ce projet de ${drawers} tiroirs.`)
+         : (dNet>=0 ? `Net result: MERIVOBOX saves ${B(f2(dNet))} per drawer vs a ${nm} drawer, or ${B(fmt$(sv))} on this ${drawers}-drawer job.`
+                    : `Net result: MERIVOBOX costs ${B(f2(dNet))} more per drawer than a ${nm} drawer, or ${B(fmt$(-sv))} more on this ${drawers}-drawer job.`)
+    ];
+  }
+  const order = [mainIdx].concat(types.map((t,i)=> i).filter(i=> i !== mainIdx));
+  const per = types.map(t=> { const x = data[MAT_COL[t.mat]]; return x.total - mvx.total; });
+  let rows = '';
+  order.forEach(i=>{
+    const t = types[i], x = data[MAT_COL[t.mat]], d = x.total - mvx.total;
+    const est = (t.mat === 'dovetail' && dvPrelim) ? (fr ? ' (est.)' : ' (est.)') : '';
+    const nm = i18n[MAT_KEY[t.mat]][lang];
+    const head = d >= 0
+      ? (fr ? `économise ${f2(d)} par tiroir · ${fmt$(d*drawers)} par projet` : `saves ${f2(d)} per drawer · ${fmt$(d*drawers)} per job`)
+      : (fr ? `coûte ${f2(d)} de plus par tiroir · ${fmt$(-d*drawers)} de plus par projet` : `costs ${f2(d)} more per drawer · ${fmt$(-d*drawers)} more per job`);
+    const star = (multi && i === mainIdx) ? `<span class="tmain">★ ${i18n.skMainTag[lang]}</span> ` : '';
+    const open = (types.length === 1 || openTypes.has(t.mat)) ? ' open' : '';
+    rows += `<details class="tdet" data-mat="${t.mat}"${open}><summary><span class="tname">${star}vs ${nm}${est}</span><span class="tsave ${d>=0?'pos':'neg'}">${head}</span></summary><ul>${typeStmts(x, nm.toLowerCase()).map(s=>'<li>'+s+'</li>').join('')}</ul></details>`;
+  });
+  document.querySelectorAll('#typeRows details').forEach(d=>{ if(d.open) openTypes.add(d.dataset.mat); else openTypes.delete(d.dataset.mat); });
+  $('typeRows').innerHTML = rows;
+  if(multi){
+    const lo = Math.min(...per), hi = Math.max(...per);
+    $('stmtSummary').innerHTML = lo >= 0
+      ? (fr ? `MERIVOBOX économise entre ${B(f2(lo))} et ${B(f2(hi))} par tiroir selon le type de tiroir.` : `MERIVOBOX saves between ${B(f2(lo))} and ${B(f2(hi))} per drawer across the drawer types.`)
+      : (hi < 0
+        ? (fr ? `MERIVOBOX coûte entre ${B(f2(hi))} et ${B(f2(lo))} de plus par tiroir selon le type de tiroir.` : `MERIVOBOX costs between ${B(f2(hi))} and ${B(f2(lo))} more per drawer across the drawer types.`)
+        : (fr ? `Selon le type de tiroir, MERIVOBOX va de ${B(f2(lo))} de plus à ${B(f2(hi))} d’économies par tiroir.` : `Depending on the drawer type, MERIVOBOX ranges from costing ${B(f2(lo))} more to saving ${B(f2(hi))} per drawer.`));
+    $('stmtSummary').style.display = '';
+  } else { $('stmtSummary').innerHTML = ''; $('stmtSummary').style.display = 'none'; }
   const stmts = [];
-  stmts.push(fr
-    ? (dMin>=0 ? `L’assemblage prend ${B(fm(dMin)+' min de moins')} par tiroir (${fm(mvx.min)} contre ${fm(cx.min)} min), soit ${B(f2(dLab))} de main-d’œuvre à ${fmt$(rate)}/h.`
-                : `L’assemblage prend ${B(fm(dMin)+' min de plus')} par tiroir (${fm(mvx.min)} contre ${fm(cx.min)} min), soit ${B(f2(dLab))} de main-d’œuvre en plus à ${fmt$(rate)}/h.`)
-    : (dMin>=0 ? `Assembly takes ${B(fm(dMin)+' min less')} per drawer (${fm(mvx.min)} vs ${fm(cx.min)} min), worth ${B(f2(dLab))} in labour at ${fmt$(rate)}/hr.`
-                : `Assembly takes ${B(fm(dMin)+' min more')} per drawer (${fm(mvx.min)} vs ${fm(cx.min)} min), adding ${B(f2(dLab))} in labour at ${fmt$(rate)}/hr.`));
-  stmts.push(fr
-    ? `Bois, coupe, placage de chant et colle : ${B(f2(dWood)+(dWood>=0?' de moins':' de plus'))} par tiroir.`
-    : `Wood, cutting, taping and glue: ${B(f2(dWood)+(dWood>=0?' less':' more'))} per drawer.`);
-  stmts.push(fr
-    ? `Quincaillerie : ${B(f2(dHw)+(dHw>=0?' de plus':' de moins'))} par tiroir.`
-    : `Hardware: ${B(f2(dHw)+(dHw>=0?' more':' less'))} per drawer.`);
-  stmts.push(fr
-    ? (dNet>=0 ? `Résultat net : MERIVOBOX économise ${B(f2(dNet))} par tiroir par rapport au tiroir en ${curName}, soit ${B(fmt$(saved))} pour ce projet de ${drawers} tiroirs.`
-                : `Résultat net : MERIVOBOX coûte ${B(f2(dNet))} de plus par tiroir que le tiroir en ${curName}, soit ${B(fmt$(-saved))} de plus pour ce projet de ${drawers} tiroirs.`)
-    : (dNet>=0 ? `Net result: MERIVOBOX saves ${B(f2(dNet))} per drawer vs a ${curName} drawer, or ${B(fmt$(saved))} on this ${drawers}-drawer job.`
-                : `Net result: MERIVOBOX costs ${B(f2(dNet))} more per drawer than a ${curName} drawer, or ${B(fmt$(-saved))} more on this ${drawers}-drawer job.`));
 
   // print summary line
   const methodName = i18n[method === 'cnc' ? 'optCNC' : 'optManual'][lang];
   $('printSummary').textContent = [
     `${drawers} ${i18n.unitDrawers[lang]}`, `${widthIn}"`,
     `${i18n.lblLabourRate[lang]} ${fmt$(rate)}/${lang === 'fr' ? 'h' : 'hr'}`,
-    methodName, runner
+    methodName, [...new Set(types.map(t=> t.runner))].join(' / ')
   ].join(' · ');
 
   if(mode === 'enhanced'){
@@ -1353,10 +1503,20 @@ function calc(){
     }
 
     const jobsYr = jobsWeek * weeksYear;
+    if(multi){
+      order.forEach(i=>{
+        const t = types[i], x = data[MAT_COL[t.mat]];
+        const an = (x.total - mvx.total) * drawers * tw[i] * jobsWeek * weeksYear;
+        const nm = i18n[MAT_KEY[t.mat]][lang];
+        stmts.push(fr
+          ? `${B(nm)} (${Math.round(tw[i]*100)} % des tiroirs) : ${an>=0 ? 'environ '+B(fmt$(an))+' d’économies nettes' : 'environ '+B(fmt$(-an))+' de coûts nets en plus'} par année.`
+          : `${B(nm)} (${Math.round(tw[i]*100)}% of drawers): ${an>=0 ? 'about '+B(fmt$(an))+' net savings' : 'about '+B(fmt$(-an))+' extra net cost'} per year.`);
+      });
+    }
     const jy = jobsYr.toLocaleString(localeFor(),{maximumFractionDigits:1});
     stmts.push(fr
-      ? (annualNet>=0 ? `Sur ${B(jy+' projets par année')} : environ ${B(fmt$(annualNet))} d’économies nettes par année.` : `Sur ${B(jy+' projets par année')} : environ ${B(fmt$(-annualNet))} de coûts nets en plus par année.`)
-      : (annualNet>=0 ? `Over ${B(jy+' jobs a year')}: about ${B(fmt$(annualNet))} net savings per year.` : `Over ${B(jy+' jobs a year')}: about ${B(fmt$(-annualNet))} extra net cost per year.`));
+      ? (annualNet>=0 ? `${multi ? 'Tous types confondus, sur ' : 'Sur '}${B(jy+' projets par année')} : environ ${B(fmt$(annualNet))} d’économies nettes par année.` : `Sur ${B(jy+' projets par année')} : environ ${B(fmt$(-annualNet))} de coûts nets en plus par année.`)
+      : (annualNet>=0 ? `${multi ? 'Across all types, over ' : 'Over '}${B(jy+' jobs a year')}: about ${B(fmt$(annualNet))} net savings per year.` : `Over ${B(jy+' jobs a year')}: about ${B(fmt$(-annualNet))} extra net cost per year.`));
     if(equipCost > 0){
       stmts.push(weeklyNet > 0
         ? (fr ? `L’équipement (${B(fmt$(equipCost))}) est récupéré en environ ${B((equipCost/weeklyNet).toLocaleString(localeFor(),{maximumFractionDigits:1})+' semaines')}.`
@@ -1364,7 +1524,8 @@ function calc(){
         : (fr ? `Avec ces données, l’équipement (${B(fmt$(equipCost))}) n’est pas récupéré.` : `On these inputs the equipment (${B(fmt$(equipCost))}) does not pay for itself.`));
     }
   }
-  $('stmtList').innerHTML = stmts.map(s=>'<li>'+s+'</li>').join('');
+  { const ts = types.reduce((s,t)=> s + (parseFloat(t.share)||0), 0); $('typeShareNote').textContent = multi && Math.round(ts) !== 100 ? i18n.skShareWarn[lang].replace('{t}', Math.round(ts)) : ''; }
+  $('stmtAnnual').innerHTML = stmts.map(s=>'<li>'+s+'</li>').join('');
 }
 
 /* ---- assembly equipment: one-time cost and assembly time ---- */
@@ -1382,8 +1543,144 @@ function applyEquip(){
 }
 document.addEventListener('change', ev=>{ if(ev.target && (ev.target.id === 'equipType' || ev.target.id === 'equipOwned')) applyEquip(); });
 
+
+/* ---- drawer banks ---- */
+// layouts: heights top to bottom. F = door / false front (not costed). M*2 = two drawers side by side.
+const PRESETS = [
+  'N','M','K','E',
+  'N,N','M,M','K,K','E,E',
+  'N,N,N','M,M,M','K,K,K','E,E,E','M,M,K','M,M,E','M,K,K','M,E,E',
+  'F,M,K','F,M,E','F,M,K,K','F,M,E,E',
+  'M,M,K,K','M,M,E,E','M,M,M,K','M,M,M,E',
+  'M,F','K,F',
+  'N*2,F','M*2,F'
+];
+const tok = t => { const [h,n] = t.split('*'); return { h, n: n ? +n : 1 }; };
+function presetLabel(code){
+  const ps = code.split(',').map(tok);
+  const nd = ps.reduce((s,p)=> s + (p.h==='F' ? 0 : p.n), 0);
+  const seq = ps.map(p=> p.h==='F' ? i18n.skFalseShort[lang] : (p.n>1 ? p.n+'×'+p.h : p.h)).join(' · ');
+  return `${nd} ${nd>1 ? i18n.skDrawers[lang] : i18n.skDrawer[lang]}: ${seq}`;
+}
+function renderBanks(){
+  const multi = banks.length > 1;
+  $('bankList').innerHTML = banks.map((b,i)=>{
+    const hs = b.hs.map(P);
+    const rows = hs.map((p,j)=>`<div class="pos-row"><span class="pos-n">${j+1}</span><select class="spec-select" data-bank="${i}" data-pos="${j}">${H_ORDER.map(k=>`<option value="${k}"${k===p.h?' selected':''}>${k} — ${HEIGHT_MM[k]} mm</option>`).join('')}<option value="F"${p.h==='F'?' selected':''}>${i18n.skFalseOpt[lang]}</option></select>${p.h!=='F'?`<label class="x2"><input type="checkbox" data-x2="${i}:${j}"${p.n>1?' checked':''}> ×2</label>`:''}${hs.length>1?`<button type="button" class="mini-btn" data-rmpos="${i}:${j}" aria-label="remove">×</button>`:''}</div>`).join('');
+    const opts = `<option value="">${i18n.skCustom[lang]}</option>` + PRESETS.map(c=>`<option value="${c}"${c===b.preset?' selected':''}>${presetLabel(c)}</option>`).join('');
+    return `<div class="bank-card">
+      <div class="bank-head"><strong><span data-i18n="lblBank">Bank</span> ${i+1}</strong>
+        ${multi?`<span class="share"><input type="number" min="0" max="100" step="1" value="${b.share}" data-share="${i}"><span class="unit" data-i18n="unitShare">% of drawers</span></span><button type="button" class="mini-btn" data-rmbank="${i}" aria-label="remove bank">×</button>`:''}
+      </div>
+      <div class="bank-opts">
+        <label><span class="sub" data-i18n="lblLayout">Start from a layout</span><select class="spec-select" data-preset="${i}">${opts}</select></label>
+        <label><span class="sub" data-i18n="lblBankLen">Drawer length</span><select class="spec-select" data-len="${i}">${LENS.map(L=>`<option value="${L}"${L===(b.len||'500')?' selected':''}>${L} mm (${Math.round(L/25.4)}")</option>`).join('')}</select></label>
+      </div>
+      <div class="sub" data-i18n="lblTopDown">Top to bottom</div>
+      ${rows}
+      ${hs.length<MAX_POS?`<button type="button" class="mini-btn wide" data-addpos="${i}" data-i18n="btnAddDrawer">+ Add drawer</button>`:''}
+      <div class="sk" id="sk_${i}"></div>
+    </div>`;
+  }).join('');
+  const L = $('bankList');
+  L.querySelectorAll('[data-i18n]').forEach(el=>{ const e = i18n[el.getAttribute('data-i18n')]; if(e) el.innerHTML = e[lang]; });
+  L.querySelectorAll('select[data-bank]').forEach(s=>s.addEventListener('change', ()=>{
+    const p = P(banks[+s.dataset.bank].hs[+s.dataset.pos]); p.h = s.value; if(p.h==='F') p.n = 1;
+    banks[+s.dataset.bank].hs[+s.dataset.pos] = p; banks[+s.dataset.bank].preset = ''; renderBanks(); updatePreview(); calc(); }));
+  L.querySelectorAll('input[data-x2]').forEach(x=>x.addEventListener('change', ()=>{
+    const [i,j] = x.dataset.x2.split(':').map(Number); const p = P(banks[i].hs[j]); p.n = x.checked ? 2 : 1; banks[i].hs[j] = p; banks[i].preset = ''; calc(); }));
+  L.querySelectorAll('select[data-len]').forEach(s=>s.addEventListener('change', ()=>{ banks[+s.dataset.len].len = s.value; updatePreview(); calc(); }));
+  L.querySelectorAll('select[data-preset]').forEach(s=>s.addEventListener('change', ()=>{
+    if(!s.value) return; banks[+s.dataset.preset].hs = s.value.split(',').map(tok); banks[+s.dataset.preset].preset = s.value; renderBanks(); updatePreview(); calc(); }));
+  L.querySelectorAll('input[data-share]').forEach(s=>s.addEventListener('input', ()=>{ banks[+s.dataset.share].share = parseFloat(s.value)||0; calc(); }));
+  L.querySelectorAll('[data-addpos]').forEach(x=>x.addEventListener('click', ()=>{ const b=banks[+x.dataset.addpos]; if(b.hs.length<MAX_POS){ const last=P(b.hs[b.hs.length-1]||'M'); b.hs.push({h:last.h==='F'?'M':last.h, n:1}); b.preset=''; } renderBanks(); calc(); }));
+  L.querySelectorAll('[data-rmpos]').forEach(x=>x.addEventListener('click', ()=>{ const [i,j]=x.dataset.rmpos.split(':').map(Number); if(banks[i].hs.length>1){ banks[i].hs.splice(j,1); banks[i].preset=''; } renderBanks(); updatePreview(); calc(); }));
+  L.querySelectorAll('[data-rmbank]').forEach(x=>x.addEventListener('click', ()=>{ if(banks.length>1) banks.splice(+x.dataset.rmbank,1); renderBanks(); updatePreview(); calc(); }));
+}
+$('addBank').addEventListener('click', ()=>{ banks.push({ share:0, len:'500', hs:[{h:'M',n:1},{h:'M',n:1}] }); renderBanks(); calc(); });
+
+function drawSketches(perAll, curKey){
+  banks.forEach((b,i)=>{
+    const el = $('sk_'+i); if(!el) return;
+    const hs = b.hs.map(P);
+    const gap = 5, pad = 8, W = 300, FMM = 90;
+    const totMm = hs.reduce((s,p)=> s + (p.h==='F' ? FMM : HEIGHT_MM[p.h]), 0);
+    const s = Math.min(1.15, 330 / (totMm + gap * hs.length));
+    let y = pad + 4, svg = '', bankSave = 0, anyDrawer = false;
+    const x0 = pad + 6, wAll = W - 2*pad - 12;
+    hs.forEach(p=>{
+      if(p.h === 'F'){
+        const hh = FMM * s;
+        svg += `<rect x="${x0}" y="${y.toFixed(1)}" width="${wAll}" height="${hh.toFixed(1)}" rx="3" fill="url(#hatch)" stroke="#9a968c" stroke-width="1.2" stroke-dasharray="4 3"/>` +
+          `<text x="${W/2}" y="${(y+hh/2+4).toFixed(1)}" font-size="11.5" text-anchor="middle" fill="#6b675e">${i18n.skFalseLabel[lang]}</text>`;
+        y += hh + gap; return;
+      }
+      anyDrawer = true;
+      const hh = HEIGHT_MM[p.h] * s;
+      const sv = perAll[p.h+'|'+(b.len||'500')][curKey].total - perAll[p.h+'|'+(b.len||'500')].mvx.total;
+      bankSave += sv * p.n;
+      const word = sv >= 0 ? i18n.skSaves[lang] : i18n.skCosts[lang];
+      const col = sv >= 0 ? '#2F6F4F' : '#C6491F';
+      if(p.n === 1){
+        svg += `<rect x="${x0}" y="${y.toFixed(1)}" width="${wAll}" height="${hh.toFixed(1)}" rx="3" fill="#F6F3EC" stroke="#4A4F55" stroke-width="1.5"/>` +
+          `<text x="${x0+10}" y="${(y+hh/2+4).toFixed(1)}" font-size="12" font-weight="700" fill="#1B1D1E">${p.h} · ${HEIGHT_MM[p.h]} mm</text>` +
+          `<text x="${x0+wAll-10}" y="${(y+hh/2+4).toFixed(1)}" font-size="12" text-anchor="end" font-weight="700" fill="${col}">${word} ${money2(sv)}</text>`;
+      } else {
+        const w2 = (wAll - gap) / 2;
+        [0,1].forEach(k=>{
+          const xx = x0 + k * (w2 + gap);
+          svg += `<rect x="${xx.toFixed(1)}" y="${y.toFixed(1)}" width="${w2.toFixed(1)}" height="${hh.toFixed(1)}" rx="3" fill="#F6F3EC" stroke="#4A4F55" stroke-width="1.5"/>` +
+            `<text x="${(xx+w2/2).toFixed(1)}" y="${(y+hh/2-2).toFixed(1)}" font-size="11.5" text-anchor="middle" font-weight="700" fill="#1B1D1E">${p.h} · ${HEIGHT_MM[p.h]} mm</text>` +
+            `<text x="${(xx+w2/2).toFixed(1)}" y="${(y+hh/2+13).toFixed(1)}" font-size="11.5" text-anchor="middle" font-weight="700" fill="${col}">${word} ${money2(sv)}</text>`;
+        });
+      }
+      y += hh + gap;
+    });
+    const H = y + pad;
+    const cab = `<rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${(H-2*pad).toFixed(1)}" rx="4" fill="none" stroke="#1B1D1E" stroke-width="2.5"/>`;
+    const defs = `<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#F1EEE7"/><line x1="0" y1="0" x2="0" y2="8" stroke="#CFCABE" stroke-width="2"/></pattern></defs>`;
+    const tot = !anyDrawer ? i18n.skNoDrawer[lang] : (bankSave >= 0 ? `${i18n.skBankSaves[lang]} <strong>${money2(bankSave)}</strong>` : `${i18n.skBankCosts[lang]} <strong>${money2(bankSave)}</strong>`);
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" width="100%" role="img" aria-label="${i18n.skAria[lang]}">${defs}${cab}${svg}</svg><div class="sk-total">${tot}</div><div class="sk-note">${i18n.skNote[lang]}</div>`;
+  });
+  const t = banks.filter(b=>bankDrawers(b)>0).reduce((s,b)=> s + (parseFloat(b.share)||0), 0);
+  $('bankShareNote').textContent = banks.length > 1 && Math.round(t) !== 100 ? i18n.skShareWarn[lang].replace('{t}', Math.round(t)) : '';
+}
+
+/* ---- drawer types ---- */
+function renderTypes(){
+  const multi = types.length > 1;
+  const used = new Set(types.map(t=> t.mat));
+  $('typeList').innerHTML = types.map((t,i)=>`<div class="type-row">
+      <button type="button" class="star${i===mainIdx?' on':''}" data-star="${i}" title="${i18n.skMainTitle[lang]}" aria-label="${i18n.skMainTitle[lang]}">★</button>
+      <select class="spec-select" data-tmat="${i}">${MATS.map(m=>`<option value="${m}"${m===t.mat?' selected':''}${(used.has(m)&&m!==t.mat)?' disabled':''}>${i18n[MAT_KEY[m]][lang]}</option>`).join('')}</select>
+      <select class="spec-select" data-trun="${i}"><option value="TANDEM"${t.runner==='TANDEM'?' selected':''}>TANDEM</option><option value="MOVENTO"${t.runner==='MOVENTO'?' selected':''}>MOVENTO</option></select>
+      ${multi?`<span class="share"><input type="number" min="0" max="100" step="1" value="${t.share}" data-tshare="${i}"><span class="unit">%</span></span><button type="button" class="mini-btn" data-trm="${i}" aria-label="remove">×</button>`:''}
+    </div>`).join('');
+  $('addType').style.display = types.length < MATS.length ? '' : 'none';
+  const T = $('typeList');
+  T.querySelectorAll('[data-star]').forEach(x=>x.addEventListener('click', ()=>{ mainIdx = +x.dataset.star; openTypes = new Set([types[mainIdx].mat]); $('typeRows').innerHTML = ''; renderTypes(); calc(); }));
+  T.querySelectorAll('select[data-tmat]').forEach(s=>s.addEventListener('change', ()=>{ types[+s.dataset.tmat].mat = s.value; openTypes = new Set([types[mainIdx].mat]); $('typeRows').innerHTML = ''; renderTypes(); calc(); }));
+  T.querySelectorAll('select[data-trun]').forEach(s=>s.addEventListener('change', ()=>{ types[+s.dataset.trun].runner = s.value; calc(); }));
+  T.querySelectorAll('input[data-tshare]').forEach(s=>s.addEventListener('input', ()=>{ types[+s.dataset.tshare].share = parseFloat(s.value)||0; calc(); }));
+  T.querySelectorAll('[data-trm]').forEach(x=>x.addEventListener('click', ()=>{
+    const i = +x.dataset.trm; if(types.length < 2) return; types.splice(i,1);
+    if(mainIdx === i) mainIdx = 0; else if(mainIdx > i) mainIdx--;
+    openTypes = new Set([types[mainIdx].mat]); $('typeRows').innerHTML = ''; renderTypes(); calc(); }));
+}
+$('addType').addEventListener('click', ()=>{
+  const free = MATS.find(m=> !types.some(t=> t.mat === m)); if(!free) return;
+  types.push({ mat:free, runner:'TANDEM', share:0 }); renderTypes(); calc();
+});
+$('typeRows').addEventListener('toggle', e=>{
+  const d = e.target; if(!d || !d.dataset || !d.dataset.mat) return;
+  if(d.open) openTypes.add(d.dataset.mat); else openTypes.delete(d.dataset.mat);
+}, true);
+
 buildCosts();
 buildTable();
+renderBanks();
+renderTypes();
+window.__banksReady = true;
 $('mvxPanel').value = COLOUR_PANEL[spec.colour];
 updatePreview();
 applyLang(lang);   // fill the how-to cards (text is held in the i18n table)
