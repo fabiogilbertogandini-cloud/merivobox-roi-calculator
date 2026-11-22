@@ -576,6 +576,7 @@
   #stmtAnnual:empty{display:none;}
   .type-row select{flex:1 1 90px;}
   .type-row .share{margin-left:auto;}
+  #dvMode{font-size:13px;}
 </style>
 </head>
 <body>
@@ -694,7 +695,7 @@
           </select>
         </div>
         <div class="field">
-          <span class="sub" data-i18n="plyNote">Plywood = pre-finished birch.</span>
+          <span class="sub" id="plyNote" data-i18n="plyNote">Plywood = pre-finished birch.</span>
         </div>
       </div>
 
@@ -946,8 +947,8 @@ const i18n = {
   lblRnMovento:{en:'Runner — MOVENTO', fr:'Coulisse — MOVENTO'},
   lblLock:{en:'Locking devices', fr:'Dispositifs de verrouillage'},
   lblDvMode:{en:'Dovetail pricing method', fr:'Méthode de prix — queue d’aronde'},
-  optDvPrelim:{en:'Preliminary (factor × melamine box)', fr:'Préliminaire (facteur × boîte en mélamine)'},
-  optDvItemized:{en:'Itemized (by species)', fr:'Détaillé (par essence)'},
+  optDvPrelim:{en:'Estimate (factor × melamine)', fr:'Estimation (facteur × mélamine)'},
+  optDvItemized:{en:'Itemized costs', fr:'Coûts détaillés'},
   lblDovetail:{en:'Dovetail factor (× melamine box)', fr:'Facteur queue d’aronde (× boîte en mélamine)'},
   rTime:{en:'Assembly time', fr:'Temps d’assemblage'},
   rMaterial:{en:'Material', fr:'Matériaux'},
@@ -1220,7 +1221,7 @@ function fieldHTML(id, labelKey, unitKey, val, real){
 function buildCosts(){
   let a = '';
   SHOP.forEach(g=>{
-    a += `<div class="asm-h" data-i18n="${g.head}">${i18n[g.head].en}</div>`;
+    a += `<div class="asm-h" id="h_${g.head}" data-i18n="${g.head}">${i18n[g.head].en}</div>`;
     g.rows.forEach(r=>{
       if(Array.isArray(r)){
         a += fieldHTML(r[0], r[1], r[2], r[3]);
@@ -1233,6 +1234,39 @@ function buildCosts(){
   });
   $('shopFields').innerHTML = a;
 
+}
+
+function updateVisibility(){
+  const S = new Set(types.map(t=> t.mat));
+  const dvOn = S.has('dovetail'), dvPre = $('dvMode').value === 'prelim';
+  const melNeeded = S.has('melamine') || (dvOn && dvPre);
+  const method = $('method').value, panel = $('mvxPanel').value, melC = $('melColour').value, sp = $('dvSpecies').value;
+  const vis = {};
+  ['Orion','Folk','White','Maple'].forEach(c=>{ vis['price_mel'+c] = (melNeeded && melC === 'mel'+c) || panel === 'mel'+c; });
+  vis.price_ply = S.has('plywood') || panel === 'ply';
+  ['Walnut','Maple','Baltic'].forEach(c=>{ vis['price_dv'+c] = dvOn && !dvPre && sp === 'dv'+c; });
+  vis.cutCNC = method === 'cnc'; vis.cutManual = method !== 'cnc';
+  vis.tapeCNC = method === 'cnc'; vis.tapeManual = method !== 'cnc';
+  vis.finishDv = dvOn && !dvPre;
+  vis.woodAssembly = S.has('melamine') || S.has('plywood') || (dvOn && dvPre);
+  vis.dvAssembly = dvOn && !dvPre;
+  vis.dvMode = dvOn;
+  vis.dvFactor = dvOn && dvPre;
+  SHOP.forEach(g=>{
+    let any = false;
+    g.rows.forEach(r=>{
+      const id = Array.isArray(r) ? r[0] : r.id;
+      const show = vis[id] !== false;
+      const el = $(id) && $(id).closest('.field');
+      if(el) el.style.display = show ? '' : 'none';
+      if(show) any = true;
+    });
+    const h = $('h_' + g.head); if(h) h.style.display = any ? '' : 'none';
+  });
+  const setF = (id, show)=>{ const el = $(id).closest('.field'); if(el) el.style.display = show ? '' : 'none'; };
+  setF('melColour', melNeeded);
+  setF('dvSpecies', dvOn && !dvPre);
+  const pn = $('plyNote') ; if(pn) pn.closest('.field').style.display = S.has('plywood') ? '' : 'none';
 }
 
 function buildTable(){
@@ -1294,6 +1328,7 @@ $('btnPrint').addEventListener('click', ()=>window.print());
    Wood height/depth follow the selected MERIVOBOX height/length.
    Dovetail "preliminary" mode = melamine box x factor (all non-hardware lines). */
 function calc(){
+  updateVisibility();
   const drawers = num('drawers');
   const rate = num('labourRate');
   const method = $('method').value;
