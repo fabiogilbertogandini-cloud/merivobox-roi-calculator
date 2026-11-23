@@ -598,6 +598,28 @@
 
   #printFoot{display:none;}
   @media print{ .banner{display:none !important;} #printFoot{display:block;margin-top:14px;padding-top:8px;border-top:1px solid #999;font-size:11px;color:#444;} }
+
+  #yearsBox{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+  #yearsBox h3{margin:0 0 8px;font-size:15px;}
+  .yr-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .yr-btn{border:1.5px solid var(--ink);background:#fff;color:var(--ink);border-radius:6px;padding:7px 12px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+  .yr-btn.on{background:var(--ink);color:#fff;}
+  .yr-cur{margin-bottom:10px;font-size:14px;}
+  .yr-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .yr-tbl th{text-align:right;font-weight:600;padding:5px 4px;border-bottom:1.5px solid var(--ink);vertical-align:bottom;}
+  .yr-tbl th:first-child,.yr-tbl td:first-child{text-align:left;}
+  .yr-tbl td{text-align:right;padding:6px 4px;border-bottom:1px solid var(--line);}
+  .yr-tbl tr.win td{background:#EEF5F0;}
+  .yr-cross{margin-top:10px;font-size:13.5px;}
+  .yr-note{margin-top:8px;font-size:12px;color:#555;}
+  @media print{ .yr-btns{display:none !important;} }
+
+  .yr-wrap{overflow-x:auto;max-width:100%;}
+  .yr-tbl{table-layout:fixed;font-size:11.5px;}
+  .yr-tbl th,.yr-tbl td{padding:5px 2px;word-break:break-word;}
+  .yr-tbl th:first-child{width:25%;}
+
+  .yr-tbl th{word-break:normal;font-size:10.5px;}
 </style>
 </head>
 <body>
@@ -833,6 +855,7 @@
           <div id="stmtSummary" class="stmt-sum"></div>
           <div id="typeRows"></div>
           <ul id="stmtAnnual"></ul>
+          <div id="yearsBox" style="display:none"></div>
           <div class="stmt-note" data-i18n="stmtNote">Based on estimated shop costs until the shop's own numbers are entered.</div>
         </div>
         <button type="button" class="print-btn" id="btnPrint" data-i18n="btnPrint">Print / save PDF</button>
@@ -1013,7 +1036,7 @@ const i18n = {
   howSummaryJob:{en:'How to read this — Per job', fr:'Comment lire ceci — Par projet'},
   howBodyJob:{en:'<p><strong>What you’re looking at:</strong> what it costs to build one job’s drawers side by side: the drawer types the shop builds, against MERIVOBOX.</p><p><strong>How to use it:</strong></p><ol><li>Enter the number of drawers in the job and the shop’s labour rate.</li><li>Add the drawer types the shop builds (melamine, plywood, dovetail), each with its runner and its share of the drawers. The star marks the most-sold type.</li><li>Describe the shop’s drawer banks, top to bottom, with each drawer’s height and length. Use a layout to start faster.</li><li>Read the green MERIVOBOX column, the “MERIVOBOX saves” row, the headline and the “In plain words” rows. Open a row to see the details for that drawer type.</li></ol><p><strong>What’s counted:</strong> wood, cutting, edge taping, glue, assembly labour and hardware (runners, locking devices, steel sides, fixings). Hardware prices are estimates of what the shop pays. They are not what the shop charges its own customer.</p><p><strong>Good to know:</strong> fields with an orange dashed outline are estimates until the shop’s own costs are entered.</p>', fr:'<p><strong>Ce que vous voyez :</strong> le coût de fabrication des tiroirs d’un projet, côte à côte : les types de tiroirs de l’atelier contre MERIVOBOX.</p><p><strong>Comment l’utiliser :</strong></p><ol><li>Entrez le nombre de tiroirs du projet et le taux horaire de l’atelier.</li><li>Ajoutez les types de tiroirs que l’atelier fabrique (mélamine, contreplaqué, queue d’aronde), chacun avec sa coulisse et sa part des tiroirs. L’étoile indique le type le plus vendu.</li><li>Décrivez les banques de tiroirs de l’atelier, de haut en bas, avec la hauteur et la longueur de chaque tiroir. Une configuration prédéfinie accélère la saisie.</li><li>Lisez la colonne verte MERIVOBOX, la ligne « Économie MERIVOBOX », le résumé et les rangées « En mots simples ». Ouvrez une rangée pour voir le détail de ce type de tiroir.</li></ol><p><strong>Ce qui est compté :</strong> bois, coupe, placage de chant, colle, main-d’œuvre d’assemblage et quincaillerie (coulisses, dispositifs de verrouillage, côtés en acier, fixations). Les prix de la quincaillerie sont des estimations de ce que l’atelier paie. Ce n’est pas ce que l’atelier facture à son propre client.</p><p><strong>Bon à savoir :</strong> les champs à contour orange pointillé sont des estimations tant que les coûts de l’atelier ne sont pas saisis.</p>'},
   howSummaryAnnual:{en:'How to read this — Annual', fr:'Comment lire ceci — Annuel'},
-  howBodyAnnual:{en:'<p><strong>What you’re looking at:</strong> the same per-job saving scaled to a year: jobs per week × weeks per year.</p><p><strong>The numbers:</strong></p><ul><li><strong>Weekly labour savings:</strong> time saved on assembly × the labour rate.</li><li><strong>Weekly cost difference outside labour:</strong> materials, cutting, taping, glue and hardware. A positive number means MERIVOBOX costs more here.</li><li><strong>Annual net savings:</strong> labour savings minus that cost difference, × weeks per year.</li><li><strong>Payback period:</strong> the equipment cost ÷ the weekly net savings. It shows “n/a” if there are no savings or no equipment cost.</li></ul><p><strong>Assembly:</strong> choose BOXFIX E-M (manual) or BOXFIX plus (assembly device). The choice sets a starting assembly time per drawer and a rough estimate of the one-time equipment cost. You can change both to match the shop. Tick “already owned” if the shop already has it.</p>', fr:'<p><strong>Ce que vous voyez :</strong> la même économie par projet ramenée à l’année : projets par semaine × semaines par année.</p><p><strong>Les chiffres :</strong></p><ul><li><strong>Économies hebdo. de main-d’œuvre :</strong> temps d’assemblage économisé × le taux horaire.</li><li><strong>Écart hebdo. des coûts hors main-d’œuvre :</strong> matériaux, coupe, placage, colle et quincaillerie. Un chiffre positif signifie que MERIVOBOX coûte plus cher ici.</li><li><strong>Économies nettes annuelles :</strong> économies de main-d’œuvre moins cet écart, × semaines par année.</li><li><strong>Période de récupération :</strong> coût de l’équipement ÷ économies nettes hebdomadaires. Affiche « s.o. » s’il n’y a pas d’économies ou pas de coût d’équipement.</li></ul><p><strong>Assemblage :</strong> choisissez BOXFIX E-M (manuel) ou BOXFIX plus (dispositif d’assemblage). Ce choix détermine un temps d’assemblage de départ par tiroir et une estimation approximative du coût unique de l’équipement. Vous pouvez modifier les deux selon l’atelier. Cochez « déjà possédé » si l’atelier l’a déjà.</p>'},
+  howBodyAnnual:{en:'<p><strong>What you’re looking at:</strong> the same per-job saving scaled to a year: jobs per week × weeks per year.</p><p><strong>The numbers:</strong></p><ul><li><strong>Weekly labour savings:</strong> time saved on assembly × the labour rate.</li><li><strong>Weekly cost difference outside labour:</strong> materials, cutting, taping, glue and hardware. A positive number means MERIVOBOX costs more here.</li><li><strong>Annual net savings:</strong> labour savings minus that cost difference, × weeks per year.</li><li><strong>Payback period:</strong> the equipment cost ÷ the weekly net savings. It shows “n/a” if there are no savings or no equipment cost.</li></ul><p><strong>Assembly:</strong> choose BOXFIX E-M (manual) or BOXFIX plus (assembly device). The choice sets a starting assembly time per drawer and a rough estimate of the one-time equipment cost. You can change both to match the shop. Tick “already owned” if the shop already has it.</p><p><strong>Years view:</strong> pick 1, 3, 5 or 10 years. The annual savings stay before equipment; the Years view subtracts the one-time equipment cost and compares BOXFIX E-M with BOXFIX plus side by side, including when (if ever) the faster option overtakes the cheaper one.</p>', fr:'<p><strong>Ce que vous voyez :</strong> la même économie par projet ramenée à l’année : projets par semaine × semaines par année.</p><p><strong>Les chiffres :</strong></p><ul><li><strong>Économies hebdo. de main-d’œuvre :</strong> temps d’assemblage économisé × le taux horaire.</li><li><strong>Écart hebdo. des coûts hors main-d’œuvre :</strong> matériaux, coupe, placage, colle et quincaillerie. Un chiffre positif signifie que MERIVOBOX coûte plus cher ici.</li><li><strong>Économies nettes annuelles :</strong> économies de main-d’œuvre moins cet écart, × semaines par année.</li><li><strong>Période de récupération :</strong> coût de l’équipement ÷ économies nettes hebdomadaires. Affiche « s.o. » s’il n’y a pas d’économies ou pas de coût d’équipement.</li></ul><p><strong>Assemblage :</strong> choisissez BOXFIX E-M (manuel) ou BOXFIX plus (dispositif d’assemblage). Ce choix détermine un temps d’assemblage de départ par tiroir et une estimation approximative du coût unique de l’équipement. Vous pouvez modifier les deux selon l’atelier. Cochez « déjà possédé » si l’atelier l’a déjà.</p><p><strong>Vue sur plusieurs années :</strong> choisissez 1, 3, 5 ou 10 ans. Les économies annuelles restent avant l’équipement; cette vue soustrait le coût unique de l’équipement et compare BOXFIX E-M et BOXFIX plus côte à côte, y compris le moment où (le cas échéant) l’option la plus rapide dépasse la moins chère.</p>'},
   hintPerJob:{en:'Size of the job and what the shop’s labour costs.', fr:'Taille du projet et coût de la main-d’œuvre de l’atelier.'},
   hintWood:{en:'The shop’s way of building. Colours and species are under Detailed options. Runners are set per drawer type.', fr:'La méthode de l’atelier. Les couleurs et essences se trouvent dans les options détaillées. Les coulisses se choisissent par type de tiroir.'},
   hintSpec:{en:'Pick the height, length and colour. The photo and hardware prices follow.', fr:'Choisissez la hauteur, la longueur et la couleur. La photo et les prix de la quincaillerie suivent.'},
@@ -1072,6 +1095,16 @@ const i18n = {
   estTagOwn:{en:'BASED ON YOUR NUMBERS', fr:'BASÉ SUR VOS CHIFFRES'},
   printFootEst:{en:'Estimate. Based on placeholder shop costs and estimated hardware prices.', fr:'Estimation. Basée sur des coûts d’atelier provisoires et des prix de quincaillerie estimés.'},
   printFootOwn:{en:'Based on shop-supplied numbers. Hardware prices are estimates.', fr:'Basée sur les chiffres fournis par l’atelier. Les prix de quincaillerie sont des estimations.'},
+  yrTitle:{en:'Years view: net after equipment', fr:'Vue sur plusieurs années : net après équipement'},
+  yrYear:{en:'year', fr:'an'}, yrYears:{en:'years', fr:'ans'},
+  yrNetLine:{en:'Net after {y}, equipment included: {v}', fr:'Net après {y}, équipement inclus : {v}'},
+  yrAnnual:{en:'Annual savings', fr:'Économies annuelles'},
+  yrEquip:{en:'Equip.', fr:'Équip.'},
+  yrPayback:{en:'Payback', fr:'Récup.'},
+  yrNetAt:{en:'Net after {y}', fr:'Net après {y}'},
+  yrOwned:{en:'owned', fr:'possédé'},
+  yrOwnedNote:{en:'“Already owned” applies to {n} only; the other option is shown at full price.', fr:'« Déjà possédé » s’applique à {n} seulement; l’autre option est affichée au plein prix.'},
+  yrNote:{en:'Annual savings are before equipment. Net = annual savings × years − one-time equipment cost. The cheaper option wins early; the faster one only wins if the shop builds enough drawers for long enough.', fr:'Les économies annuelles sont avant l’équipement. Net = économies annuelles × années − coût unique de l’équipement. L’option la moins chère gagne tôt; la plus rapide ne gagne que si l’atelier fabrique assez de tiroirs assez longtemps.'},
   panelSpec:{en:'MERIVOBOX specification', fr:'Spécification MERIVOBOX'},
   lblHeight:{en:'Drawer side height', fr:'Hauteur du côté de tiroir'},
   lblLength:{en:'Nominal length', fr:'Longueur nominale'},
@@ -1608,6 +1641,7 @@ function calc(){
     methodName, [...new Set(types.map(t=> t.runner))].join(' / ')
   ].join(' · ');
 
+  $('yearsBox').style.display = 'none';
   if(mode === 'enhanced'){
     const jobsWeek = num('jobsWeek');
     const weeksYear = num('weeksYear');
@@ -1652,6 +1686,46 @@ function calc(){
         ? (fr ? `L’équipement (${B(fmt$(equipCost))}) est récupéré en environ ${B((equipCost/weeklyNet).toLocaleString(localeFor(),{maximumFractionDigits:1})+' semaines')}.`
               : `The equipment (${B(fmt$(equipCost))}) pays for itself in about ${B((equipCost/weeklyNet).toLocaleString(localeFor(),{maximumFractionDigits:1})+' weeks')}.`)
         : (fr ? `Avec ces données, l’équipement (${B(fmt$(equipCost))}) n’est pas récupéré.` : `On these inputs the equipment (${B(fmt$(equipCost))}) does not pay for itself.`));
+    }
+
+    /* ---- Years view: cumulative net after equipment, E-M vs plus ---- */
+    {
+      const selKey = $('equipType').value, otherKey = selKey === 'boxfixem' ? 'boxfixplus' : 'boxfixem';
+      const wkF = (drawers * jobsWeek * weeksYear * rate) / 60;
+      const calcFor = k => k === selKey
+        ? { ann: annualNet, cost: equipCost }
+        : { ann: annualNet + (mvx.min - EQUIP[k].min) * wkF, cost: EQUIP[k].price };
+      const E = calcFor('boxfixem'), Pl = calcFor('boxfixplus');
+      const Y = yearsSel, net = o => o.ann * Y - o.cost;
+      const nm = { boxfixem: 'BOXFIX E-M', boxfixplus: 'BOXFIX plus' };
+      const pb = o => o.ann > 0 && o.cost > 0 ? (o.cost / (o.ann / weeksYear)) : (o.cost === 0 ? 0 : null);
+      const fw = w => w === null ? (fr ? 's.o.' : 'n/a') : (w === 0 ? (fr ? 'immédiat' : 'immediate') : w.toLocaleString(localeFor(),{maximumFractionDigits:1}) + (fr ? ' sem.' : ' wks'));
+      const money = v => (v < 0 ? '−' : '') + fmt$(Math.abs(v));
+      const rows = [['boxfixem', E], ['boxfixplus', Pl]];
+      const best = net(E) >= net(Pl) ? 'boxfixem' : 'boxfixplus';
+      let cross = '';
+      const dAnn = Pl.ann - E.ann, dCost = Pl.cost - E.cost;
+      if(dAnn > 0 && dCost > 0){
+        const yc = dCost / dAnn;
+        cross = fr ? `BOXFIX plus dépasse BOXFIX E-M après environ ${B(yc.toLocaleString(localeFor(),{maximumFractionDigits:1})+' ans')}.`
+                   : `BOXFIX plus overtakes BOXFIX E-M after about ${B(yc.toLocaleString(localeFor(),{maximumFractionDigits:1})+' years')}.`;
+      } else if(dAnn <= 0 && dCost > 0){
+        cross = fr ? 'Avec ces données, BOXFIX plus ne dépasse jamais BOXFIX E-M.' : 'On these inputs BOXFIX plus never overtakes BOXFIX E-M.';
+      } else if(dCost <= 0 && dAnn >= 0){
+        cross = fr ? 'BOXFIX plus est en avance dès le départ.' : 'BOXFIX plus is ahead from the start.';
+      }
+      const ownedNote = $('equipOwned').checked ? `<div class="yr-note">${i18n.yrOwnedNote[lang].replace('{n}', nm[selKey])}</div>` : '';
+      $('yearsBox').innerHTML =
+        `<h3>${i18n.yrTitle[lang]}</h3>` +
+        `<div class="yr-btns">${[1,3,5,10].map(y=>`<button type="button" class="yr-btn${y===Y?' on':''}" data-yrs="${y}">${y} ${y===1 ? i18n.yrYear[lang] : i18n.yrYears[lang]}</button>`).join('')}</div>` +
+        `<div class="yr-cur">${i18n.yrNetLine[lang].replace('{y}', Y + ' ' + (Y===1 ? i18n.yrYear[lang] : i18n.yrYears[lang])).replace('{v}', B(money(annualNet * Y - equipCost)))}</div>` +
+        `<div class="yr-wrap"><table class="yr-tbl"><thead><tr><th></th><th>${i18n.yrAnnual[lang]}</th><th>${i18n.yrEquip[lang]}</th><th>${i18n.yrPayback[lang]}</th><th>${i18n.yrNetAt[lang].replace('{y}', Y + (fr ? (Y===1?' an':' ans') : (Y===1?' yr':' yrs')))}</th></tr></thead><tbody>` +
+        rows.map(([k,o])=>`<tr class="${k===best?'win':''}"><td>${nm[k]}${k===selKey?' ★':''}</td><td>${fmt$(o.ann)}</td><td>${o.cost===0?i18n.yrOwned[lang]:fmt$(o.cost)}</td><td>${fw(pb(o))}</td><td><strong>${money(net(o))}</strong></td></tr>`).join('') +
+        `</tbody></table></div>` + (cross ? `<div class="yr-cross">${cross}</div>` : '') + ownedNote +
+        `<div class="yr-note">${i18n.yrNote[lang]}</div>`;
+      $('yearsBox').style.display = '';
+      stmts.push(fr ? `Sur ${B(Y+(Y===1?' an':' ans'))}, après l’équipement : environ ${B(money(annualNet*Y-equipCost))}.`
+                    : `Over ${B(Y+(Y===1?' year':' years'))}, after the equipment: about ${B(money(annualNet*Y-equipCost))}.`);
     }
   }
   { const ts = types.reduce((s,t)=> s + (parseFloat(t.share)||0), 0); $('typeShareNote').textContent = multi && Math.round(ts) !== 100 ? i18n.skShareWarn[lang].replace('{t}', Math.round(ts)) : ''; }
@@ -1808,6 +1882,8 @@ $('typeRows').addEventListener('toggle', e=>{
 }, true);
 
 /* ---- confirm each number: Enter button per field, progress, estimate tag ---- */
+let yearsSel = 5;
+document.addEventListener('click', e=>{ const b = e.target.closest && e.target.closest('[data-yrs]'); if(b){ yearsSel = +b.dataset.yrs; calc(); } });
 const confirmed = {};      // id -> 'own' (entered by the shop) | 'est' (accepted estimate)
 const CONF_STATIC = ['labourRate'];
 function confIds(){
